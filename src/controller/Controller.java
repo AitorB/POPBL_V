@@ -83,8 +83,7 @@ public class Controller extends JFrame {
 		
 		return transmisionPanel;
 	}
-		
-		
+
 	private Container backgroundPanel() {
 		Image backgroundImage;
 		backgroundImage = Toolkit.getDefaultToolkit().createImage(BACKGROUND_IMAGE);
