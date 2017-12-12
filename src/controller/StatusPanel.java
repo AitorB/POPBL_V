@@ -82,26 +82,21 @@ public class StatusPanel extends JPanel {
 		return panel;
 	}
 	
-	public void setStatus(int status) {
+	public void setStatus(String status) {
 		switch (status) {
-		case 1:
+		case "transmitting":
 			statusImage.setIcon(new ImageIcon(IMAGE_TRANSMITTING));
 			statusText.setText(TEXT_TRANSMITTING);
 			break;
 
-		case 0:
+		case "standBy":
 			statusImage.setIcon(new ImageIcon(IMAGE_STANDBY));
 			statusText.setText(TEXT_STANDBY);
 			break;
 
-		case -1:
+		case "receiving":
 			statusImage.setIcon(new ImageIcon(IMAGE_RECEIVING));
 			statusText.setText(TEXT_RECEIVING);
-			break;
-			
-		default:
-			statusImage.setIcon(new ImageIcon(IMAGE_STANDBY));
-			statusText.setText(TEXT_STANDBY);
 			break;
 		}
 	}

@@ -43,7 +43,7 @@ import javax.swing.JPanel;
 import main.Main;
 import resources.Background;
 import resources.ClipPlayer;
-import resources.Data;
+import resources.Date;
 import resources.Time;
 
 public class Controller extends JFrame {
@@ -55,6 +55,7 @@ public class Controller extends JFrame {
 	private CommunicationHandler communicationHandler;
 	
 	private KeyListenerPanel keyListenerPanel;
+	private StatusPanel statusPanel;
 	private RecordPanel recordPanel;
 	private List<Record> recordList;
 
@@ -108,7 +109,7 @@ public class Controller extends JFrame {
 		panel.setBorder(BorderFactory.createMatteBorder(3, 0, 3, 0, Color.BLACK));
 		panel.setPreferredSize(new Dimension(0, 30));
 
-		panel.add(new Data(Color.BLACK, new Font("Arial", Font.BOLD, 15), Color.WHITE, true));
+		panel.add(new Date(Color.BLACK, new Font("Arial", Font.BOLD, 15), Color.WHITE, true));
 		panel.add(new Time(Color.BLACK, new Font("Arial", Font.BOLD, 15), Color.WHITE, true));
 
 		return panel;
@@ -117,7 +118,7 @@ public class Controller extends JFrame {
 	private Component dataPanel() {
 		JPanel panel = new JPanel(new BorderLayout());
 
-		StatusPanel statusPanel = new StatusPanel();
+		statusPanel = new StatusPanel();
 		recordPanel = new RecordPanel(this, recordList);
 
 		panel.add(statusPanel, BorderLayout.CENTER);
@@ -174,6 +175,10 @@ public class Controller extends JFrame {
 		return recordList;
 	}
 
+	public StatusPanel getStatusPanel() { 
+		return this.statusPanel;
+	}
+	
 	public RecordPanel getRecordPanel() {
 		return this.recordPanel;
 	}

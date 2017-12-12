@@ -1,3 +1,16 @@
+/** @file ClipPlayer.java
+ *  @brief Class that allows you to play audio clips
+ *  @authors
+ *  Name          | Surname        | Email                                |
+ *  ------------- | -------------- | ------------------------------------ |
+ *  Aitor         | Barreiro       | aitor.barreirom@alumni.mondragon.edu |
+ *  Mikel         | Hernandez      | mikel.hernandez@alumni.mondragon.edu |
+ *  Unai          | Iraeta         | unai.iraeta@alumni.mondragon.edu     |
+ *  Iker	      | Mendi          | iker.mendi@alumni.mondragon.edu      |
+ *  Julen	      | Uribarren	   | julen.uribarren@alumni.mondragon.edu |
+ *  @date 20/01/2018
+ */
+
 package resources;
 
 import java.io.File;

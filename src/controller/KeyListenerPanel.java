@@ -1,3 +1,16 @@
+/** @file KeyListenerPanel.java
+ *  @brief Class that allows you to hear the keystroke during program execution
+ *  @authors
+ *  Name          | Surname        | Email                                |
+ *  ------------- | -------------- | ------------------------------------ |
+ *  Aitor         | Barreiro       | aitor.barreirom@alumni.mondragon.edu |
+ *  Mikel         | Hernandez      | mikel.hernandez@alumni.mondragon.edu |
+ *  Unai          | Iraeta         | unai.iraeta@alumni.mondragon.edu     |
+ *  Iker	      | Mendi          | iker.mendi@alumni.mondragon.edu      |
+ *  Julen	      | Uribarren	   | julen.uribarren@alumni.mondragon.edu |
+ *  @date 20/01/2018
+ */
+
 package controller;
 
 import java.awt.FlowLayout;
@@ -43,12 +56,10 @@ public class KeyListenerPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				if (!keyIsDown && !clipON) {
 					keyIsDown = true;
-					Main.getController().getRecordPanel().setSystemStatus("transmissionON");
 					startTransmission();
-				} else if (clipON){
+				} else if (clipON) {
 					JOptionPane.showConfirmDialog(window, "Stop the clip before starting a communitacion!", "Error!", JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
-				}
-
+				} 
 			}
 		});
 		am.put("keyReleased", new AbstractAction() {
@@ -57,23 +68,25 @@ public class KeyListenerPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				keyIsDown = false;
-				Main.getController().getRecordPanel().setSystemStatus("transmissionOFF");
 				stopTransmission();
 			}
 		});
 	}
 
 	public void startTransmission() {
-		System.out.println("TRANSMISSION STARTED!");
-		// START listening to microphone
+		if (Main.getController().getCommunicationHandler().getChannelIsReady()) {
+			Main.getController().getCommunicationHandler().start();
+		} else {
+			JOptionPane.showConfirmDialog(window, "Checking ommunication protocol, wait!", "Warning!", JOptionPane.CLOSED_OPTION, JOptionPane.WARNING_MESSAGE);
+		}
 	}
 	
 	public void stopTransmission() {
-		System.out.println("TRANSMISSION ENDED!");
-		// STOP listening to microphone
+		Main.getController().getCommunicationHandler().stop();
 	}
 	
 	public void setClipON(boolean clipON) {
 		this.clipON = clipON;
 	}
+	
 }

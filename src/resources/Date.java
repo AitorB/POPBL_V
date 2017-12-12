@@ -28,13 +28,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-public class Data extends JPanel implements ActionListener {
+public class Date extends JPanel implements ActionListener {
 	private static final long serialVersionUID = 1L;
 
 	private Locale locale;
 	private JLabel dateText;
 
-	public Data(Color textColor, Font font, Color backgroundColor, boolean setOpaque) {
+	public Date(Color textColor, Font font, Color backgroundColor, boolean setOpaque) {
 		this.setLayout(new BorderLayout());
 		this.setBackground(backgroundColor);
 		this.setOpaque(setOpaque);
