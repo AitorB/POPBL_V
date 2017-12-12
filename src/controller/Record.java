@@ -19,7 +19,7 @@ public class Record  implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	private String title;
-	private String rute;
+	private String route;
 	private int minute;
 	private int second;
 	private int milisecond;
@@ -29,19 +29,19 @@ public class Record  implements Serializable {
 		this.second = second; 
 		this.milisecond = milisecond;
 		this.title = title + ".wav";
-		buildRute(title);
+		buildRoute(title);
 	}
 	
-	private void buildRute(String title) {
-		this.rute = "record\\" + title + ".wav";
+	private void buildRoute(String title) {
+		this.route = "record\\" + title + ".wav";
 	}
 
 	public String getTitle() {
 		return title;
 	}
 	
-	public String getRute() {
-		return rute;
+	public String getRoute() {
+		return route;
 	}
 
 	public int getMinute() {

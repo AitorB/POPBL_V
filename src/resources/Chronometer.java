@@ -22,19 +22,20 @@ import java.awt.event.ActionListener;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.Timer;
- 
+
 public class Chronometer extends JPanel implements ActionListener {
 	private static final long serialVersionUID = 1L;
 
 	private JLabel chronometer;
 	private Timer timer;
 	private int minute, second, milisecond;
+	private boolean pause = false;
 
 	public Chronometer(Color fontColor, Font font, Color backgroundColor, boolean opaque) {
 		this.setLayout(new BorderLayout());
 		this.setBackground(backgroundColor);
 		this.setOpaque(opaque);
-		
+
 		chronometer = new JLabel("00 : 00 : 00");
 		chronometer.setForeground(fontColor);
 		chronometer.setFont(font);
@@ -46,15 +47,27 @@ public class Chronometer extends JPanel implements ActionListener {
 	}
 
 	public void start() {
-		minute = 0;
-		second = 0;
-		milisecond = 0;
-		
-		timer.setInitialDelay(0);
-		timer.start();
+		if (!pause) {
+			minute = 0;
+			second = 0;
+			milisecond = 0;
+
+			timer.setInitialDelay(0);
+			timer.start();
+		} else {
+			pause = false;
+			timer.start();
+		}
+
 	}
 
 	public void stop() {
+		chronometer.setText("00 : 00 : 00");
+		timer.stop();
+	}
+
+	public void pause() {
+		pause = true;
 		timer.stop();
 	}
 
@@ -88,5 +101,5 @@ public class Chronometer extends JPanel implements ActionListener {
 	public void setChronometer(String newValue) {
 		chronometer.setText(newValue);
 	}
-	
+
 }

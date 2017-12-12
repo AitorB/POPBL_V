@@ -42,6 +42,7 @@ import javax.swing.JPanel;
 
 import main.Main;
 import resources.Background;
+import resources.ClipPlayer;
 import resources.Data;
 import resources.Time;
 
@@ -50,20 +51,25 @@ public class Controller extends JFrame {
 
 	private static final String BACKGROUND_IMAGE = "image\\background.jpg";
 
-	private Transmission transmisionPanel;
+	private ClipPlayer clipPlayer;
+	private CommunicationHandler communicationHandler;
+	
+	private KeyListenerPanel keyListenerPanel;
 	private RecordPanel recordPanel;
 	private List<Record> recordList;
 
 	public Controller() {
+		clipPlayer = new ClipPlayer(this);
+		communicationHandler = new CommunicationHandler();
 		loadData();
 		mainProgram();
 	}
 
 	private void mainProgram() {
-		this.setTitle("Walkie Talkie");
+		this.setTitle("Walkie-Talkie");
 		this.setIconImage(new ImageIcon("icon\\mu.png").getImage());
 		this.setContentPane(mainWindow());
-		this.setPreferredSize(new Dimension(Main.WIDTH_WINDOW, Main.HEIGHT_WINDOW));
+		this.setPreferredSize(new Dimension(Main.getWidthWindow(), Main.getHeightWindow()));
 		this.setResizable(false);
 		this.pack();
 		this.setLocationRelativeTo(null);
@@ -77,11 +83,11 @@ public class Controller extends JFrame {
 	}
 
 	private Container mainWindow() {
-		transmisionPanel = new Transmission(this);
-		
-		transmisionPanel.add(backgroundPanel());
-		
-		return transmisionPanel;
+		keyListenerPanel = new KeyListenerPanel(this);
+
+		keyListenerPanel.add(backgroundPanel());
+
+		return keyListenerPanel;
 	}
 
 	private Container backgroundPanel() {
@@ -112,7 +118,7 @@ public class Controller extends JFrame {
 		JPanel panel = new JPanel(new BorderLayout());
 
 		StatusPanel statusPanel = new StatusPanel();
-		recordPanel = new RecordPanel(this, recordList, transmisionPanel);
+		recordPanel = new RecordPanel(this, recordList);
 
 		panel.add(statusPanel, BorderLayout.CENTER);
 		panel.add(recordPanel, BorderLayout.WEST);
@@ -164,8 +170,24 @@ public class Controller extends JFrame {
 		}
 	}
 
-	public RecordPanel getRecordPanel() {
-		return recordPanel;
+	public List<Record> getRecordList() {
+		return recordList;
 	}
-	
+
+	public RecordPanel getRecordPanel() {
+		return this.recordPanel;
+	}
+
+	public KeyListenerPanel getKeyListenerPanel() {
+		return this.keyListenerPanel;
+	}
+
+	public ClipPlayer getClipPlayer() {
+		return clipPlayer;
+	}
+
+	public CommunicationHandler getCommunicationHandler() {
+		return communicationHandler;
+	}
+
 }

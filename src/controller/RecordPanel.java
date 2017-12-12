@@ -39,6 +39,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import dialog.RecordDialog;
+import main.Main;
 import resources.Chronometer;
 
 public class RecordPanel extends JPanel implements ActionListener, ListSelectionListener {
@@ -52,27 +53,22 @@ public class RecordPanel extends JPanel implements ActionListener, ListSelection
 	protected static final String ICON_STOPREC = "icon\\stopRec.png";
 
 	private JFrame window;
-	private Transmission transmisionPanel;
+	private JButton play, pause, stop, delete, record;
+
 	private JList<Record> recordJList;
 	private DefaultListModel<Record> recordModel;
-
-	private JButton play, pause, stop, delete;
-	private JButton record;
-
-	private Record newRecord, selectedRecord;
+	private Record selectedRecord;
 	private List<Record> recordList;
-	private boolean recordStatus;
 	private Chronometer chronometer;
+	private boolean recordON = false;
 
-	public RecordPanel(JFrame window, List<Record> recordList, Transmission transmisionPanel) {
+	public RecordPanel(JFrame window, List<Record> recordList) {
 		super(new BorderLayout(0, 12));
 		this.setBorder(BorderFactory.createEmptyBorder(30, 30, 0, 0));
 		this.setOpaque(false);
 
 		this.window = window;
 		this.recordList = recordList;
-		recordStatus = false;
-		this.transmisionPanel = transmisionPanel;
 
 		this.add(topPanel(), BorderLayout.CENTER);
 		this.add(bottomPanel(), BorderLayout.SOUTH);
@@ -131,7 +127,7 @@ public class RecordPanel extends JPanel implements ActionListener, ListSelection
 		recordJList.setCellRenderer(new RecordAdapter());
 
 		panelScroll.setViewportView(recordJList);
-		
+
 		return panelScroll;
 	}
 
@@ -166,30 +162,29 @@ public class RecordPanel extends JPanel implements ActionListener, ListSelection
 		play.setActionCommand("play");
 		play.addActionListener(this);
 		play.setContentAreaFilled(false);
-		play.setEnabled(true);
-		
+		play.setEnabled(false);
+
 		pause = new JButton(new ImageIcon(ICON_PAUSE));
 		pause.setActionCommand("pause");
 		pause.addActionListener(this);
 		pause.setContentAreaFilled(false);
 		pause.setEnabled(false);
-		
+
 		stop = new JButton(new ImageIcon(ICON_STOP));
 		stop.setActionCommand("stop");
 		stop.addActionListener(this);
 		stop.setContentAreaFilled(false);
 		stop.setEnabled(false);
-		
+
 		delete = new JButton(new ImageIcon(ICON_DELETE));
 		delete.setActionCommand("delete");
 		delete.addActionListener(this);
 		delete.setContentAreaFilled(false);
-		delete.setEnabled(true);
-		
-		if (recordModel.isEmpty()) {
-			play.setEnabled(false);
-			delete.setEnabled(false);
-		} else {
+		delete.setEnabled(false);
+
+		if (!recordModel.isEmpty()) {
+			play.setEnabled(true);
+			delete.setEnabled(true);
 			recordJList.setSelectedIndex(recordModel.size() - 1);
 		}
 
@@ -210,6 +205,7 @@ public class RecordPanel extends JPanel implements ActionListener, ListSelection
 		record.setActionCommand("record");
 		record.addActionListener(this);
 		record.setContentAreaFilled(false);
+		record.setEnabled(false);
 
 		panel.add(record);
 
@@ -221,18 +217,15 @@ public class RecordPanel extends JPanel implements ActionListener, ListSelection
 			recordModel.addElement(record);
 		}
 	}
-	
-	public void setButtonStatus(String status) {
 
+	public void setSystemStatus(String status) {
 		switch (status) {
 		case "play":
 			play.setEnabled(false);
 			pause.setEnabled(true);
 			stop.setEnabled(true);
 			delete.setEnabled(false);
-			record.setEnabled(false);
-			
-			transmisionPanel.communicationAvailable(false);
+			recordJList.setEnabled(false);
 			break;
 
 		case "pause":
@@ -240,8 +233,6 @@ public class RecordPanel extends JPanel implements ActionListener, ListSelection
 			pause.setEnabled(false);
 			stop.setEnabled(true);
 			delete.setEnabled(false);
-			record.setEnabled(false);
-			
 			break;
 
 		case "stop":
@@ -249,9 +240,7 @@ public class RecordPanel extends JPanel implements ActionListener, ListSelection
 			pause.setEnabled(false);
 			stop.setEnabled(false);
 			delete.setEnabled(true);
-			record.setEnabled(true);
-			
-			transmisionPanel.communicationAvailable(true);
+			recordJList.setEnabled(true);
 			break;
 
 		case "delete":
@@ -261,62 +250,62 @@ public class RecordPanel extends JPanel implements ActionListener, ListSelection
 			}
 			break;
 
-		case "recording":
+		case "transmissionON":
 			play.setEnabled(false);
-			pause.setEnabled(false);
-			stop.setEnabled(false);
 			delete.setEnabled(false);
+			recordJList.setEnabled(false);
+			record.setEnabled(true);
 			break;
 
-		case "stopped":
+		case "transmissionOFF":
 			if (!recordModel.isEmpty()) {
 				play.setEnabled(true);
 				delete.setEnabled(true);
+				recordJList.setEnabled(true);
 			}
+			record.setEnabled(false);
 			break;
 		}
 	}
-	
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand().equals("play")) {
-			System.out.println("PLAY SELECTED RECORD");
-			setButtonStatus("play");
+			setSystemStatus("play");
+			Main.getController().getClipPlayer().play();
 
 		} else if (e.getActionCommand().equals("pause")) {
-			System.out.println("PAUSE SELECTED RECORD");
-			setButtonStatus("pause");
+			setSystemStatus("pause");
+			Main.getController().getClipPlayer().pause();
 
 		} else if (e.getActionCommand().equals("stop")) {
-			System.out.println("STOP SELECTED RECORD");
-			setButtonStatus("stop");
-
+			setSystemStatus("stop");
+			Main.getController().getClipPlayer().stop();
+			
 		} else if (e.getActionCommand().equals("delete")) {
 			int answer = JOptionPane.showConfirmDialog(window, "Delete current record?", "Alert!",
 					JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 
 			if (answer == 0) {
 				recordModel.removeElement(recordJList.getSelectedValue());
-				setButtonStatus("delete");
+				setSystemStatus("delete");
 			}
-
+			recordJList.setSelectedIndex(recordModel.size() - 1);
 		} else if (e.getActionCommand().equals("record")) {
-			if (!recordStatus) {
-				recordStatus = true;
-				setButtonStatus("recording");
+			if (!recordON) {
+				recordON = true;
 				record.setIcon(new ImageIcon(ICON_STOPREC));
 				chronometer.start();
 				startRecord();
 			} else {
-				recordStatus = false;
+				recordON = false;
 				record.setIcon(new ImageIcon(ICON_STARTREC));
 				chronometer.stop();
 				stopRecord();
-				setButtonStatus("stopped");
+				setSystemStatus("transmissionOFF");
+				recordJList.setSelectedIndex(recordModel.size() - 1);
 			}
 		}
-
-		recordJList.setSelectedIndex(recordModel.size() - 1);
 	}
 
 	@Override
@@ -344,7 +333,6 @@ public class RecordPanel extends JPanel implements ActionListener, ListSelection
 		return list;
 	}
 
-
 	private void startRecord() {
 		System.out.println("START RECORDING");
 		// Listen to the microphone
@@ -353,16 +341,23 @@ public class RecordPanel extends JPanel implements ActionListener, ListSelection
 	private void stopRecord() {
 		System.out.println("STOP RECORDING");
 		// Stop recording
-		
+
 		RecordDialog dialog = new RecordDialog(window, 420, 150);
 
 		if (dialog.getSaveRecord()) {
-			newRecord = new Record(dialog.getTitle(), chronometer.getMinute(), chronometer.getSecond(),
-					chronometer.getMilisecond());
-			recordModel.addElement(newRecord);
-			setButtonStatus("stop");
+			recordModel.addElement(new Record(dialog.getTitle(), chronometer.getMinute(), chronometer.getSecond(),
+					chronometer.getMilisecond()));
+			setSystemStatus("stop");
 		}
 		// Save record to disc
+	}
+
+	public Record getSelectedRecord() {
+		return selectedRecord;
+	}
+
+	public Chronometer getChronometer() {
+		return chronometer;
 	}
 
 }

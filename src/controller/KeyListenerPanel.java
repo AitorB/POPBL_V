@@ -14,15 +14,15 @@ import javax.swing.KeyStroke;
 
 import main.Main;
 
-public class Transmission extends JPanel {
+public class KeyListenerPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 
 	private JFrame window;
 	
 	private boolean keyIsDown = false;
-	private boolean available = true;
+	private boolean clipON = false;
 
-	public Transmission(JFrame window) {
+	public KeyListenerPanel(JFrame window) {
 		super(new FlowLayout());
 		this.window = window;
 		
@@ -41,12 +41,12 @@ public class Transmission extends JPanel {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (!keyIsDown && available) {
+				if (!keyIsDown && !clipON) {
 					keyIsDown = true;
-					Main.controller.getRecordPanel().setButtonStatus("recording");
+					Main.getController().getRecordPanel().setSystemStatus("transmissionON");
 					startTransmission();
-				} else if (!available){
-					JOptionPane.showConfirmDialog(window, "Stop the record before starting a communitacion!", "Error!", JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
+				} else if (clipON){
+					JOptionPane.showConfirmDialog(window, "Stop the clip before starting a communitacion!", "Error!", JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
 				}
 
 			}
@@ -57,7 +57,7 @@ public class Transmission extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				keyIsDown = false;
-				Main.controller.getRecordPanel().setButtonStatus("stopped");
+				Main.getController().getRecordPanel().setSystemStatus("transmissionOFF");
 				stopTransmission();
 			}
 		});
@@ -73,7 +73,7 @@ public class Transmission extends JPanel {
 		// STOP listening to microphone
 	}
 	
-	public void communicationAvailable(boolean available) {
-		this.available = available;
+	public void setClipON(boolean clipON) {
+		this.clipON = clipON;
 	}
 }
