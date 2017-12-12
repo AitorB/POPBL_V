@@ -87,19 +87,19 @@ public class Chronometer extends JPanel implements ActionListener {
 	}
 
 	public int getMinute() {
-		return minute;
+		return this.minute;
 	}
 
 	public int getSecond() {
-		return second;
+		return this.second;
 	}
 
 	public int getMilisecond() {
-		return milisecond;
+		return this.milisecond;
 	}
 
 	public void setChronometer(String newValue) {
-		chronometer.setText(newValue);
+		this.chronometer.setText(newValue);
 	}
 
 }

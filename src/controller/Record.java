@@ -37,23 +37,23 @@ public class Record  implements Serializable {
 	}
 
 	public String getTitle() {
-		return title;
+		return this.title;
 	}
 	
 	public String getRoute() {
-		return route;
+		return this.route;
 	}
 
 	public int getMinute() {
-		return minute;
+		return this.minute;
 	}
 
 	public int getSecond() {
-		return second;
+		return this.second;
 	}
 
 	public int getMilisecond() {
-		return milisecond;
+		return this.milisecond;
 	}
 	
 }

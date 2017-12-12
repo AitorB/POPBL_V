@@ -293,17 +293,9 @@ public class RecordPanel extends JPanel implements ActionListener, ListSelection
 			recordJList.setSelectedIndex(recordModel.size() - 1);
 		} else if (e.getActionCommand().equals("record")) {
 			if (!recordON) {
-				recordON = true;
-				record.setIcon(new ImageIcon(ICON_STOPREC));
-				chronometer.start();
 				startRecord();
 			} else {
-				recordON = false;
-				record.setIcon(new ImageIcon(ICON_STARTREC));
-				chronometer.stop();
 				stopRecord();
-				setSystemStatus("transmissionOFF");
-				recordJList.setSelectedIndex(recordModel.size() - 1);
 			}
 		}
 	}
@@ -333,31 +325,40 @@ public class RecordPanel extends JPanel implements ActionListener, ListSelection
 		return list;
 	}
 
-	private void startRecord() {
-		System.out.println("START RECORDING");
-		// Listen to the microphone
+	public void startRecord() {
+		recordON = true;
+		record.setIcon(new ImageIcon(ICON_STOPREC));
+		chronometer.start();
+		
+		Main.getController().getCommunicationHandler().startRecord();
 	}
 
-	private void stopRecord() {
-		System.out.println("STOP RECORDING");
-		// Stop recording
-
+	public void stopRecord() {
+		recordON = false;
+		record.setIcon(new ImageIcon(ICON_STARTREC));
+		chronometer.stop();
+		setSystemStatus("transmissionOFF");
+		recordJList.setSelectedIndex(recordModel.size() - 1);
+		
+		Main.getController().getCommunicationHandler().stopRecord();
+		
 		RecordDialog dialog = new RecordDialog(window, 420, 150);
-
 		if (dialog.getSaveRecord()) {
 			recordModel.addElement(new Record(dialog.getTitle(), chronometer.getMinute(), chronometer.getSecond(),
 					chronometer.getMilisecond()));
 			setSystemStatus("stop");
 		}
-		// Save record to disc
 	}
 
 	public Record getSelectedRecord() {
-		return selectedRecord;
+		return this.selectedRecord;
 	}
 
 	public Chronometer getChronometer() {
-		return chronometer;
+		return this.chronometer;
 	}
 
+	public boolean getRecordON() {
+		return this.recordON;
+	}
 }

@@ -47,10 +47,30 @@ public class CommunicationHandler implements Observer {
 		countdown.stop();
 		Main.getController().getStatusPanel().setStatus("standBy");
 		Main.getController().getRecordPanel().setSystemStatus("transmissionOFF");
+		if(Main.getController().getRecordPanel().getRecordON()) {
+			Main.getController().getRecordPanel().stopRecord();
+		}
 	}
 
+	public void transmit() {
+		
+	}
+	
+	public void receive() {
+		
+	}
+	
+	public void startRecord() {
+		// start recoring
+	}
+	
+	public void stopRecord() {
+		// save record to disk
+	}
+	
+	
 	public boolean getChannelIsReady() {
-		return channelIsReady;
+		return this.channelIsReady;
 	}
 
 }

@@ -160,11 +160,11 @@ public class RecordDialog extends JDialog implements ActionListener {
 	}
 
 	public String getTitle() {
-		return title;
+		return this.title;
 	}
 	
 	public boolean getSaveRecord() {
-		return saveRecord;
+		return this.saveRecord;
 	}
 	
 }

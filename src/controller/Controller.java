@@ -172,7 +172,7 @@ public class Controller extends JFrame {
 	}
 
 	public List<Record> getRecordList() {
-		return recordList;
+		return this.recordList;
 	}
 
 	public StatusPanel getStatusPanel() { 
@@ -188,11 +188,11 @@ public class Controller extends JFrame {
 	}
 
 	public ClipPlayer getClipPlayer() {
-		return clipPlayer;
+		return this.clipPlayer;
 	}
 
 	public CommunicationHandler getCommunicationHandler() {
-		return communicationHandler;
+		return this.communicationHandler;
 	}
 
 }
