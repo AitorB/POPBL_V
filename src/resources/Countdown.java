@@ -61,5 +61,4 @@ public class Countdown implements ActionListener, Observable {
 	public void notifyObservers() {
 		this.observer.update(this, this);
 	}
-
 }

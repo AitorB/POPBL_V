@@ -25,20 +25,20 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
-import main.Main;
+import main.References;
 
 public class KeyListenerPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 
 	private JFrame window;
-	
+
 	private boolean keyIsDown = false;
 	private boolean clipON = false;
 
 	public KeyListenerPanel(JFrame window) {
 		super(new FlowLayout());
 		this.window = window;
-		
+
 		keyListener();
 	}
 
@@ -58,8 +58,9 @@ public class KeyListenerPanel extends JPanel {
 					keyIsDown = true;
 					startTransmission();
 				} else if (clipON) {
-					JOptionPane.showConfirmDialog(window, "Stop the clip before starting a communitacion!", "Error!", JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
-				} 
+					JOptionPane.showConfirmDialog(window, "Stop the clip before starting a communitacion!", "Error!",
+							JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
+				}
 			}
 		});
 		am.put("keyReleased", new AbstractAction() {
@@ -74,19 +75,19 @@ public class KeyListenerPanel extends JPanel {
 	}
 
 	public void startTransmission() {
-		if (Main.getController().getCommunicationHandler().getChannelIsReady()) {
-			Main.getController().getCommunicationHandler().start();
+		if (References.COMMUNICATION_HANDLER.getIsChannelReady()) {
+			References.COMMUNICATION_HANDLER.start();
 		} else {
-			JOptionPane.showConfirmDialog(window, "Checking ommunication protocol, wait!", "Warning!", JOptionPane.CLOSED_OPTION, JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showConfirmDialog(window, "Checking ommunication protocol, wait!", "Warning!",
+					JOptionPane.CLOSED_OPTION, JOptionPane.WARNING_MESSAGE);
 		}
 	}
-	
+
 	public void stopTransmission() {
-		Main.getController().getCommunicationHandler().stop();
+		References.COMMUNICATION_HANDLER.stop();
 	}
-	
+
 	public void setClipON(boolean clipON) {
 		this.clipON = clipON;
 	}
-	
 }

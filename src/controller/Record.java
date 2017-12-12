@@ -15,23 +15,23 @@ package controller;
 
 import java.io.Serializable;
 
-public class Record  implements Serializable {
+public class Record implements Serializable {
 	private static final long serialVersionUID = 1L;
-	
+
 	private String title;
 	private String route;
 	private int minute;
 	private int second;
 	private int milisecond;
-	
+
 	public Record(String title, int minute, int second, int milisecond) {
 		this.minute = minute;
-		this.second = second; 
+		this.second = second;
 		this.milisecond = milisecond;
 		this.title = title + ".wav";
 		buildRoute(title);
 	}
-	
+
 	private void buildRoute(String title) {
 		this.route = "record\\" + title + ".wav";
 	}
@@ -39,7 +39,7 @@ public class Record  implements Serializable {
 	public String getTitle() {
 		return this.title;
 	}
-	
+
 	public String getRoute() {
 		return this.route;
 	}
@@ -55,5 +55,4 @@ public class Record  implements Serializable {
 	public int getMilisecond() {
 		return this.milisecond;
 	}
-	
 }

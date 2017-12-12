@@ -101,5 +101,4 @@ public class Chronometer extends JPanel implements ActionListener {
 	public void setChronometer(String newValue) {
 		this.chronometer.setText(newValue);
 	}
-
 }

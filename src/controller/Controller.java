@@ -40,7 +40,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import main.Main;
+import main.References;
 import resources.Background;
 import resources.ClipPlayer;
 import resources.Date;
@@ -49,28 +49,20 @@ import resources.Time;
 public class Controller extends JFrame {
 	private static final long serialVersionUID = 1L;
 
-	private static final String BACKGROUND_IMAGE = "image\\background.jpg";
-
-	private ClipPlayer clipPlayer;
-	private CommunicationHandler communicationHandler;
-	
-	private KeyListenerPanel keyListenerPanel;
-	private StatusPanel statusPanel;
-	private RecordPanel recordPanel;
 	private List<Record> recordList;
 
 	public Controller() {
-		clipPlayer = new ClipPlayer(this);
-		communicationHandler = new CommunicationHandler();
+		References.CLIP_PLAYER = new ClipPlayer(this);
+		References.COMMUNICATION_HANDLER = new CommunicationHandler();
 		loadData();
 		mainProgram();
 	}
 
 	private void mainProgram() {
 		this.setTitle("Walkie-Talkie");
-		this.setIconImage(new ImageIcon("icon\\mu.png").getImage());
+		this.setIconImage(new ImageIcon(References.LOGO_IMAGE).getImage());
 		this.setContentPane(mainWindow());
-		this.setPreferredSize(new Dimension(Main.getWidthWindow(), Main.getHeightWindow()));
+		this.setPreferredSize(new Dimension(References.WIDTH_WINDOW, References.HEIGHT_WINDOW));
 		this.setResizable(false);
 		this.pack();
 		this.setLocationRelativeTo(null);
@@ -84,16 +76,16 @@ public class Controller extends JFrame {
 	}
 
 	private Container mainWindow() {
-		keyListenerPanel = new KeyListenerPanel(this);
+		References.KEYLISTENER_PANEL = new KeyListenerPanel(this);
 
-		keyListenerPanel.add(backgroundPanel());
+		References.KEYLISTENER_PANEL.add(backgroundPanel());
 
-		return keyListenerPanel;
+		return References.KEYLISTENER_PANEL;
 	}
 
 	private Container backgroundPanel() {
 		Image backgroundImage;
-		backgroundImage = Toolkit.getDefaultToolkit().createImage(BACKGROUND_IMAGE);
+		backgroundImage = Toolkit.getDefaultToolkit().createImage(References.BACKGROUND_IMAGE);
 
 		JPanel panel = new Background(backgroundImage);
 		panel.setLayout(new BorderLayout());
@@ -118,11 +110,11 @@ public class Controller extends JFrame {
 	private Component dataPanel() {
 		JPanel panel = new JPanel(new BorderLayout());
 
-		statusPanel = new StatusPanel();
-		recordPanel = new RecordPanel(this, recordList);
+		References.STATUS_PANEL = new StatusPanel();
+		References.RECORD_PANEL = new RecordPanel(this, recordList);
 
-		panel.add(statusPanel, BorderLayout.CENTER);
-		panel.add(recordPanel, BorderLayout.WEST);
+		panel.add(References.STATUS_PANEL, BorderLayout.CENTER);
+		panel.add(References.RECORD_PANEL, BorderLayout.WEST);
 
 		panel.setOpaque(false);
 
@@ -133,26 +125,25 @@ public class Controller extends JFrame {
 	private void loadData() {
 		recordList = new ArrayList<>();
 
-		try (ObjectInputStream reader = new ObjectInputStream(new FileInputStream(Main.RECORD_DATA))) {
+		try (ObjectInputStream reader = new ObjectInputStream(new FileInputStream(References.RECORD_DATA))) {
 			recordList = (List<Record>) reader.readObject();
 		} catch (FileNotFoundException e) {
-			File archive = new File(Main.RECORD_DATA);
+			File archive = new File(References.RECORD_DATA);
 			try {
 				archive.createNewFile();
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			}
-			// e.printStackTrace();
 		} catch (IOException e) {
-			// e.printStackTrace();
+			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 	}
 
 	private void saveData() {
-		try (ObjectOutputStream writer = new ObjectOutputStream(new FileOutputStream(Main.RECORD_DATA))) {
-			recordList = recordPanel.getRecordList();
+		try (ObjectOutputStream writer = new ObjectOutputStream(new FileOutputStream(References.RECORD_DATA))) {
+			recordList = References.RECORD_PANEL.getRecordList();
 			writer.writeObject(recordList);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -174,25 +165,4 @@ public class Controller extends JFrame {
 	public List<Record> getRecordList() {
 		return this.recordList;
 	}
-
-	public StatusPanel getStatusPanel() { 
-		return this.statusPanel;
-	}
-	
-	public RecordPanel getRecordPanel() {
-		return this.recordPanel;
-	}
-
-	public KeyListenerPanel getKeyListenerPanel() {
-		return this.keyListenerPanel;
-	}
-
-	public ClipPlayer getClipPlayer() {
-		return this.clipPlayer;
-	}
-
-	public CommunicationHandler getCommunicationHandler() {
-		return this.communicationHandler;
-	}
-
 }

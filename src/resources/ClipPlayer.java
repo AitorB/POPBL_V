@@ -23,13 +23,11 @@ import javax.sound.sampled.LineListener;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import main.Main;
+import main.References;
 
 public class ClipPlayer implements LineListener {
-	private static final String START = "START";
-    private static final String STOP = "STOP";
-    private boolean pause = false;
-	
+	private boolean pause = false;
+
 	private JFrame window;
 	private Clip clip;
 	private int lastFrame;
@@ -41,14 +39,14 @@ public class ClipPlayer implements LineListener {
 	public void play() {
 		if (clip == null) {
 			try {
-				loadClip(new File(Main.getController().getRecordPanel().getSelectedRecord().getRoute()));
+				loadClip(new File(References.RECORD_PANEL.getSelectedRecord().getRoute()));
 				clip.start();
 				clip.addLineListener(this);
 			} catch (Exception e) {
 				e.printStackTrace();
 				JOptionPane.showConfirmDialog(window, "Failed to load audio clip!", "Error", JOptionPane.CLOSED_OPTION,
 						JOptionPane.ERROR_MESSAGE);
-				Main.getController().getRecordPanel().setSystemStatus("stop");
+				References.RECORD_PANEL.setSystemStatus("stop");
 			}
 		} else {
 			pause();
@@ -76,31 +74,34 @@ public class ClipPlayer implements LineListener {
 			lastFrame = 0;
 			clip.stop();
 			clip = null;
+			References.CHRONOMETER.stop();
+			References.RECORD_PANEL.setSystemStatus("stop");
+			References.KEYLISTENER_PANEL.setClipON(false);
 		}
 	}
 
-	private void loadClip(File audioFile) throws Exception {
-		AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
-		clip = AudioSystem.getClip();
-		clip.open(audioStream);
+	private void loadClip(File audioFile) {
+		try {
+			AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
+			clip = AudioSystem.getClip();
+			clip.open(audioStream);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
 	public void update(LineEvent e) {
-        String eventType = e.getType().toString();
-        if (eventType.equalsIgnoreCase(START)) {
-    		Main.getController().getKeyListenerPanel().setClipON(true);
-    		Main.getController().getRecordPanel().getChronometer().start();
-        } else if (eventType.equalsIgnoreCase(STOP)) {
-        	if(!pause) {
-        		Main.getController().getRecordPanel().getChronometer().stop();
-            	Main.getController().getRecordPanel().setSystemStatus("stop");
-            	Main.getController().getKeyListenerPanel().setClipON(false);
-            	stop();
-        	} else {
-        		Main.getController().getRecordPanel().getChronometer().pause();
-        	}
-        }
+		String eventType = e.getType().toString();
+		if (eventType.equalsIgnoreCase(References.START)) {
+			References.KEYLISTENER_PANEL.setClipON(true);
+			References.CHRONOMETER.start();
+		} else if (eventType.equalsIgnoreCase(References.STOP)) {
+			if (!pause) {
+				stop();
+			} else {
+				References.CHRONOMETER.pause();
+			}
+		}
 	}
-
 }

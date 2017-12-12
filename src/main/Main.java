@@ -18,12 +18,6 @@ import javax.swing.UIManager;
 import controller.Controller;
 
 public class Main {
-	private static final int WIDTH_WINDOW = 1280;
-	private static final int HEIGHT_WINDOW = 720;
-	private static Controller controller;
-	
-	public static final String RECORD_DATA = "data\\records.dat";
-
 	public static void main(String[] args) {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -31,19 +25,6 @@ public class Main {
 			e.printStackTrace();
 		}
 
-		controller = new Controller();
+		new Controller();
 	}
-
-	public static int getWidthWindow() {
-		return WIDTH_WINDOW;
-	}
-
-	public static int getHeightWindow() {
-		return HEIGHT_WINDOW;
-	}
-	
-	public static Controller getController() {
-		return controller;
-	}
-	
 }

@@ -44,5 +44,4 @@ public class RecordAdapter implements ListCellRenderer<Record> {
 
 		return panel;
 	}
-	
 }

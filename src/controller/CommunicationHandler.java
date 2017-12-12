@@ -13,64 +13,68 @@
 
 package controller;
 
+import javax.sound.sampled.AudioFormat;
+
 import interfaces.Observable;
 import interfaces.Observer;
-import main.Main;
+import main.References;
 import resources.Countdown;
 
 public class CommunicationHandler implements Observer {
-	private final static int DURATION_SEC = 10;
 
 	private Countdown countdown;
-	private boolean channelIsReady = true;
+	private boolean IsChannelReady = true;
 
 	public CommunicationHandler() {
-		countdown = new Countdown(DURATION_SEC);
+		countdown = new Countdown(References.DURATION_SEC);
 		countdown.addObserver(this);
 	}
 
 	public void start() {
 		System.out.println("TRANSMISSION STARTED!");
 		countdown.stop();
-		Main.getController().getStatusPanel().setStatus("transmitting");
-		Main.getController().getRecordPanel().setSystemStatus("transmissionON");
+		References.STATUS_PANEL.setStatus("transmitting");
+		References.RECORD_PANEL.setSystemStatus("transmissionON");
 	}
 
 	public void stop() {
 		countdown.start();
-		Main.getController().getStatusPanel().setStatus("receiving");
+		References.STATUS_PANEL.setStatus("receiving");
 	}
 
 	@Override
 	public void update(Observable observable, Object object) {
 		System.out.println("TRANSMISSION ENDED!");
 		countdown.stop();
-		Main.getController().getStatusPanel().setStatus("standBy");
-		Main.getController().getRecordPanel().setSystemStatus("transmissionOFF");
-		if(Main.getController().getRecordPanel().getRecordON()) {
-			Main.getController().getRecordPanel().stopRecord();
+		References.STATUS_PANEL.setStatus("standBy");
+		References.RECORD_PANEL.setSystemStatus("transmissionOFF");
+		if (References.RECORD_PANEL.getRecordON()) {
+			References.RECORD_PANEL.stopRecord();
 		}
 	}
 
 	public void transmit() {
-		
+
 	}
-	
+
 	public void receive() {
-		
+
 	}
-	
+
 	public void startRecord() {
 		// start recoring
 	}
-	
+
 	public void stopRecord() {
 		// save record to disk
 	}
-	
-	
-	public boolean getChannelIsReady() {
-		return this.channelIsReady;
+
+	private AudioFormat getAudioFormat() {
+		return new AudioFormat(References.SAMPLE_RATE, References.SAMPLE_SIZE_IN_BITS, References.CHANNELS,
+				References.SIGNED, References.BIG_ENDIAN);
 	}
 
+	public boolean getIsChannelReady() {
+		return this.IsChannelReady;
+	}
 }

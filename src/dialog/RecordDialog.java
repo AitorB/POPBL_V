@@ -36,16 +36,16 @@ import javax.swing.JTextField;
 
 public class RecordDialog extends JDialog implements ActionListener {
 	private static final long serialVersionUID = 1L;
-	
+
 	private JTextField textField;
 	private JButton accept;
-	
+
 	protected String title;
 	protected boolean saveRecord;
-	
+
 	public RecordDialog(JFrame window, int width, int height) {
 		super(window);
-		
+
 		this.setContentPane(dialogPanel());
 		this.setPreferredSize(new Dimension(width, height));
 		this.setResizable(false);
@@ -55,7 +55,7 @@ public class RecordDialog extends JDialog implements ActionListener {
 		this.setModal(true);
 		this.setVisible(true);
 	}
-	
+
 	private Container dialogPanel() {
 		JPanel panel = new JPanel(new BorderLayout());
 
@@ -64,15 +64,15 @@ public class RecordDialog extends JDialog implements ActionListener {
 
 		return panel;
 	}
-	
+
 	protected Component dataPanel() {
 		JPanel panel = new JPanel(new GridLayout(1, 2, 0, 8));
 		panel.setBorder(BorderFactory.createEmptyBorder(20, 5, 20, 30));
 
-		JLabel label = new JLabel ("Record tittle:");
+		JLabel label = new JLabel("Record tittle:");
 		label.setFont(new Font("Arial", Font.BOLD, 20));
 		label.setHorizontalAlignment(JTextField.CENTER);
-		
+
 		textField = new JTextField();
 		textField.setFont(new Font("Arial", Font.BOLD, 20));
 		textField.setHorizontalAlignment(JTextField.RIGHT);
@@ -82,13 +82,13 @@ public class RecordDialog extends JDialog implements ActionListener {
 				accept.requestFocusInWindow();
 			}
 		});
-		
+
 		panel.add(label);
 		panel.add(textField);
 
 		return panel;
 	}
-	
+
 	protected boolean emptyField() {
 		boolean emptyField = false;
 
@@ -98,22 +98,23 @@ public class RecordDialog extends JDialog implements ActionListener {
 
 		return emptyField;
 	}
-	
+
 	private boolean checkData() {
 		boolean validData = true;
 
 		if (!textField.getText().matches("[a-zA-Z0-9_-]{1,15}")) {
 			validData = false;
-				
-			JOptionPane.showConfirmDialog(this, "Max length of 15, abailable characters: [a-z] [A-Z] [0-9] [_-]", "Error!", JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
-				
+
+			JOptionPane.showConfirmDialog(this, "Max length of 15, abailable characters: [a-z] [A-Z] [0-9] [_-]",
+					"Error!", JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
+
 			textField.setText(null);
 			textField.requestFocusInWindow();
 		}
 
 		return validData;
 	}
-	
+
 	private Component buttonPanel() {
 		JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
@@ -137,7 +138,7 @@ public class RecordDialog extends JDialog implements ActionListener {
 
 		return panel;
 	}
-	
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand().equals("accept")) {
@@ -148,7 +149,8 @@ public class RecordDialog extends JDialog implements ActionListener {
 					this.dispose();
 				}
 			} else {
-				JOptionPane.showConfirmDialog(this, "Fill in all the data!", "Error!", JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showConfirmDialog(this, "Fill in all the data!", "Error!", JOptionPane.CLOSED_OPTION,
+						JOptionPane.ERROR_MESSAGE);
 				textField.selectAll();
 				textField.requestFocusInWindow();
 			}
@@ -156,15 +158,14 @@ public class RecordDialog extends JDialog implements ActionListener {
 		if (e.getActionCommand().equals("cancel")) {
 			saveRecord = false;
 			this.dispose();
-		}		
+		}
 	}
 
 	public String getTitle() {
 		return this.title;
 	}
-	
+
 	public boolean getSaveRecord() {
 		return this.saveRecord;
 	}
-	
 }

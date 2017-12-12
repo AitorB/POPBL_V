@@ -39,18 +39,11 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import dialog.RecordDialog;
-import main.Main;
+import main.References;
 import resources.Chronometer;
 
 public class RecordPanel extends JPanel implements ActionListener, ListSelectionListener {
 	private static final long serialVersionUID = 1L;
-
-	protected static final String ICON_PLAY = "icon\\play.png";
-	protected static final String ICON_PAUSE = "icon\\pause.png";
-	protected static final String ICON_STOP = "icon\\stop.png";
-	protected static final String ICON_DELETE = "icon\\delete.png";
-	protected static final String ICON_STARTREC = "icon\\startRec.png";
-	protected static final String ICON_STOPREC = "icon\\stopRec.png";
 
 	private JFrame window;
 	private JButton play, pause, stop, delete, record;
@@ -59,7 +52,6 @@ public class RecordPanel extends JPanel implements ActionListener, ListSelection
 	private DefaultListModel<Record> recordModel;
 	private Record selectedRecord;
 	private List<Record> recordList;
-	private Chronometer chronometer;
 	private boolean recordON = false;
 
 	public RecordPanel(JFrame window, List<Record> recordList) {
@@ -147,9 +139,9 @@ public class RecordPanel extends JPanel implements ActionListener, ListSelection
 		panel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
 		panel.setOpaque(false);
 
-		chronometer = new Chronometer(Color.BLACK, new Font("Arial", Font.BOLD, 40), Color.WHITE, false);
+		References.CHRONOMETER = new Chronometer(Color.BLACK, new Font("Arial", Font.BOLD, 40), Color.WHITE, false);
 
-		panel.add(chronometer);
+		panel.add(References.CHRONOMETER);
 
 		return panel;
 	}
@@ -158,25 +150,25 @@ public class RecordPanel extends JPanel implements ActionListener, ListSelection
 		JPanel panel = new JPanel(new GridLayout(1, 4, 0, 0));
 		panel.setOpaque(false);
 
-		play = new JButton(new ImageIcon(ICON_PLAY));
+		play = new JButton(new ImageIcon(References.PLAY_IMAGE));
 		play.setActionCommand("play");
 		play.addActionListener(this);
 		play.setContentAreaFilled(false);
 		play.setEnabled(false);
 
-		pause = new JButton(new ImageIcon(ICON_PAUSE));
+		pause = new JButton(new ImageIcon(References.PAUSE_IMAGE));
 		pause.setActionCommand("pause");
 		pause.addActionListener(this);
 		pause.setContentAreaFilled(false);
 		pause.setEnabled(false);
 
-		stop = new JButton(new ImageIcon(ICON_STOP));
+		stop = new JButton(new ImageIcon(References.STOP_IMAGE));
 		stop.setActionCommand("stop");
 		stop.addActionListener(this);
 		stop.setContentAreaFilled(false);
 		stop.setEnabled(false);
 
-		delete = new JButton(new ImageIcon(ICON_DELETE));
+		delete = new JButton(new ImageIcon(References.DELETE_IMAGE));
 		delete.setActionCommand("delete");
 		delete.addActionListener(this);
 		delete.setContentAreaFilled(false);
@@ -200,7 +192,7 @@ public class RecordPanel extends JPanel implements ActionListener, ListSelection
 		JPanel panel = new JPanel(new FlowLayout());
 		panel.setOpaque(false);
 
-		record = new JButton("  REC", new ImageIcon(ICON_STARTREC));
+		record = new JButton("  REC", new ImageIcon(References.STARTREC_IMAGE));
 		record.setFont(new Font("Arial", Font.BOLD, 60));
 		record.setActionCommand("record");
 		record.addActionListener(this);
@@ -272,16 +264,16 @@ public class RecordPanel extends JPanel implements ActionListener, ListSelection
 	public void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand().equals("play")) {
 			setSystemStatus("play");
-			Main.getController().getClipPlayer().play();
+			References.CLIP_PLAYER.play();
 
 		} else if (e.getActionCommand().equals("pause")) {
 			setSystemStatus("pause");
-			Main.getController().getClipPlayer().pause();
+			References.CLIP_PLAYER.pause();
 
 		} else if (e.getActionCommand().equals("stop")) {
 			setSystemStatus("stop");
-			Main.getController().getClipPlayer().stop();
-			
+			References.CLIP_PLAYER.stop();
+
 		} else if (e.getActionCommand().equals("delete")) {
 			int answer = JOptionPane.showConfirmDialog(window, "Delete current record?", "Alert!",
 					JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
@@ -306,10 +298,10 @@ public class RecordPanel extends JPanel implements ActionListener, ListSelection
 			JList<?> list = (JList<?>) e.getSource();
 			if (!list.isSelectionEmpty()) {
 				selectedRecord = (Record) list.getSelectedValue();
-				chronometer.setChronometer(String.format("%02d : %02d : %02d", selectedRecord.getMinute(),
+				References.CHRONOMETER.setChronometer(String.format("%02d : %02d : %02d", selectedRecord.getMinute(),
 						selectedRecord.getSecond(), selectedRecord.getMilisecond()));
 			} else {
-				chronometer.setChronometer("00 : 00 : 00");
+				References.CHRONOMETER.setChronometer("00 : 00 : 00");
 			}
 		}
 
@@ -327,35 +319,31 @@ public class RecordPanel extends JPanel implements ActionListener, ListSelection
 
 	public void startRecord() {
 		recordON = true;
-		record.setIcon(new ImageIcon(ICON_STOPREC));
-		chronometer.start();
-		
-		Main.getController().getCommunicationHandler().startRecord();
+		record.setIcon(new ImageIcon(References.STOPREC_IMAGE));
+		References.CHRONOMETER.start();
+
+		References.COMMUNICATION_HANDLER.startRecord();
 	}
 
 	public void stopRecord() {
 		recordON = false;
-		record.setIcon(new ImageIcon(ICON_STARTREC));
-		chronometer.stop();
+		record.setIcon(new ImageIcon(References.STARTREC_IMAGE));
+		References.CHRONOMETER.stop();
 		setSystemStatus("transmissionOFF");
 		recordJList.setSelectedIndex(recordModel.size() - 1);
-		
-		Main.getController().getCommunicationHandler().stopRecord();
-		
+
+		References.COMMUNICATION_HANDLER.stopRecord();
+
 		RecordDialog dialog = new RecordDialog(window, 420, 150);
 		if (dialog.getSaveRecord()) {
-			recordModel.addElement(new Record(dialog.getTitle(), chronometer.getMinute(), chronometer.getSecond(),
-					chronometer.getMilisecond()));
+			recordModel.addElement(new Record(dialog.getTitle(), References.CHRONOMETER.getMinute(), References.CHRONOMETER.getSecond(),
+					References.CHRONOMETER.getMilisecond()));
 			setSystemStatus("stop");
 		}
 	}
 
 	public Record getSelectedRecord() {
 		return this.selectedRecord;
-	}
-
-	public Chronometer getChronometer() {
-		return this.chronometer;
 	}
 
 	public boolean getRecordON() {

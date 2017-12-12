@@ -35,7 +35,7 @@ public class Time extends JPanel implements ActionListener {
 		this.setLayout(new BorderLayout());
 		this.setBackground(backgroundColor);
 		this.setOpaque(setOpaque);
-		
+
 		timeText = new JLabel();
 		timeText.setForeground(textColor);
 		timeText.setFont(font);
@@ -63,5 +63,4 @@ public class Time extends JPanel implements ActionListener {
 
 		timeText.setText(String.format("%02d : %02d : %02d", hour, minute, second));
 	}
-	
 }

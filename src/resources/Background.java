@@ -20,9 +20,9 @@ import javax.swing.JPanel;
 
 public class Background extends JPanel {
 	private static final long serialVersionUID = 1L;
-	
+
 	private Image image;
-	
+
 	public Background(Image image) {
 		if (image != null) {
 			this.image = image;
@@ -39,10 +39,9 @@ public class Background extends JPanel {
 		}
 		super.paint(g);
 	}
-	
+
 	public void setImagen(Image image) {
 		this.image = image;
 		repaint();
 	}
-	
 }

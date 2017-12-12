@@ -38,9 +38,9 @@ public class Date extends JPanel implements ActionListener {
 		this.setLayout(new BorderLayout());
 		this.setBackground(backgroundColor);
 		this.setOpaque(setOpaque);
-		
+
 		locale = Locale.getDefault();
-		
+
 		dateText = new JLabel();
 		dateText.setHorizontalAlignment(JLabel.CENTER);
 		dateText.setVerticalAlignment(JLabel.CENTER);
@@ -48,11 +48,11 @@ public class Date extends JPanel implements ActionListener {
 		dateText.setFont(font);
 
 		this.add(dateText, BorderLayout.CENTER);
-		
+
 		iniciar();
 	}
 
-	private void iniciar() { 
+	private void iniciar() {
 		Timer timer = new Timer(1000, this);
 
 		timer.setInitialDelay(0);
@@ -63,14 +63,13 @@ public class Date extends JPanel implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		LocalDate localeDate = LocalDate.now();
 
-		String dayOfWeek = localeDate.getDayOfWeek().getDisplayName(TextStyle.FULL, locale).substring(0, 1).toUpperCase()
-				+ localeDate.getDayOfWeek().getDisplayName(TextStyle.FULL, locale).substring(1);
+		String dayOfWeek = localeDate.getDayOfWeek().getDisplayName(TextStyle.FULL, locale).substring(0, 1)
+				.toUpperCase() + localeDate.getDayOfWeek().getDisplayName(TextStyle.FULL, locale).substring(1);
 		int dayOfMonth = localeDate.getDayOfMonth();
 		String month = localeDate.getMonth().getDisplayName(TextStyle.FULL, locale).substring(0, 1).toUpperCase()
 				+ localeDate.getMonth().getDisplayName(TextStyle.FULL, locale).substring(1);
 		int year = localeDate.getYear();
-		
+
 		dateText.setText(dayOfWeek + ", " + dayOfMonth + " de " + month + " de " + year);
 	}
-	
 }
