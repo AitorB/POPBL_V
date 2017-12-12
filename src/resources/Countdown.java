@@ -18,31 +18,48 @@ import java.awt.event.ActionListener;
 
 import javax.swing.Timer;
 
-public class Countdown implements ActionListener {
-	private Timer timer;
-	private boolean timeOver;
+import interfaces.Observable;
+import interfaces.Observer;
 
-	public Countdown(int durationMS) {
-		timer = new Timer(durationMS, this);
+public class Countdown implements ActionListener, Observable {
+	private Timer timer;
+	private int durationSec;
+	private Observer observer;
+
+	public Countdown(int durationSec) {
+		timer = new Timer(1000, this);
+		this.durationSec = durationSec;
 	}
 
 	public void start() {
-		timeOver = false;
-		timer.setInitialDelay(0);
+		timer.setInitialDelay(durationSec * 1000);
 		timer.start();
 	}
 
 	public void stop() {
-		timer.stop();
+		if (timer.isRunning()) {
+			timer.stop();
+		}
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		timeOver = true;
+		this.notifyObservers();
 	}
 
-	public boolean getTimeOver() {
-		return timeOver;
+	@Override
+	public void addObserver(Observer observer) {
+		this.observer = observer;
+	}
+
+	@Override
+	public void removeObserver(Observer observer) {
+		this.observer = null;
+	}
+
+	@Override
+	public void notifyObservers() {
+		this.observer.update(this, this);
 	}
 
 }

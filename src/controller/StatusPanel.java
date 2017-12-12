@@ -89,14 +89,14 @@ public class StatusPanel extends JPanel {
 			statusText.setText(TEXT_TRANSMITTING);
 			break;
 
-		case "standBy":
-			statusImage.setIcon(new ImageIcon(IMAGE_STANDBY));
-			statusText.setText(TEXT_STANDBY);
-			break;
-
 		case "receiving":
 			statusImage.setIcon(new ImageIcon(IMAGE_RECEIVING));
 			statusText.setText(TEXT_RECEIVING);
+			break;
+			
+		case "standBy":
+			statusImage.setIcon(new ImageIcon(IMAGE_STANDBY));
+			statusText.setText(TEXT_STANDBY);
 			break;
 		}
 	}

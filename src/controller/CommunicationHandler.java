@@ -13,34 +13,42 @@
 
 package controller;
 
+import interfaces.Observable;
+import interfaces.Observer;
 import main.Main;
 import resources.Countdown;
 
-public class CommunicationHandler {
+public class CommunicationHandler implements Observer {
+	private final static int DURATION_SEC = 10;
+
 	private Countdown countdown;
 	private boolean channelIsReady = true;
-	
+
 	public CommunicationHandler() {
-		countdown = new Countdown(10000);
+		countdown = new Countdown(DURATION_SEC);
+		countdown.addObserver(this);
 	}
-	
+
 	public void start() {
-		countdown.start();
 		System.out.println("TRANSMISSION STARTED!");
+		countdown.stop();
 		Main.getController().getStatusPanel().setStatus("transmitting");
 		Main.getController().getRecordPanel().setSystemStatus("transmissionON");
 	}
-	
+
 	public void stop() {
-		if(countdown.getTimeOver()) {
-			System.out.println("TRANSMISSION ENDED!");
-			Main.getController().getStatusPanel().setStatus("standBy");
-			Main.getController().getRecordPanel().setSystemStatus("transmissionOFF");
-		} else {
-			Main.getController().getStatusPanel().setStatus("receiving");
-		}
-		
+		countdown.start();
+		Main.getController().getStatusPanel().setStatus("receiving");
 	}
+
+	@Override
+	public void update(Observable observable, Object object) {
+		System.out.println("TRANSMISSION ENDED!");
+		countdown.stop();
+		Main.getController().getStatusPanel().setStatus("standBy");
+		Main.getController().getRecordPanel().setSystemStatus("transmissionOFF");
+	}
+
 	public boolean getChannelIsReady() {
 		return channelIsReady;
 	}
