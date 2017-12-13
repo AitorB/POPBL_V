@@ -162,7 +162,7 @@ public class CommunicationHandler implements Observer {
 	public void stopRecord() {
 		Record newRecord;
 		RecordDialog dialog = new RecordDialog(window, 420, 150);
-		if (dialog.getSaveRecord()) {
+		if (dialog.getAcceptRecord()) {
 			newRecord = new Record(dialog.getTitle(), References.CHRONOMETER.getMinute(),
 					References.CHRONOMETER.getSecond(), References.CHRONOMETER.getMilisecond());
 			References.RECORD_PANEL.getRecordModel().addElement(newRecord);
@@ -177,6 +177,10 @@ public class CommunicationHandler implements Observer {
 				AudioSystem.write(recordAIS, fileType, wavFile);
 			} catch (Exception e) {
 				e.printStackTrace();
+			}
+		} else {
+			if(transmissionON) {
+				References.RECORD_PANEL.setSystemStatus("transmissionON");
 			}
 		}
 	}

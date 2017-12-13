@@ -13,7 +13,6 @@
 
 package controller;
 
-import java.io.File;
 import java.io.Serializable;
 
 public class Record implements Serializable {
@@ -21,7 +20,6 @@ public class Record implements Serializable {
 
 	private String title;
 	private String relativePath;
-	private String absolutePath;
 	private int minute;
 	private int second;
 	private int milisecond;
@@ -36,7 +34,6 @@ public class Record implements Serializable {
 
 	private void buildPath(String title) {
 		this.relativePath = "record\\" + title;
-		this.absolutePath = (new File(title).getAbsolutePath());
 	}
 
 	public String getTitle() {
@@ -45,10 +42,6 @@ public class Record implements Serializable {
 
 	public String getRelativePath() {
 		return this.relativePath;
-	}
-
-	public String getAbsolutePath() {
-		return this.absolutePath;
 	}
 
 	public int getMinute() {

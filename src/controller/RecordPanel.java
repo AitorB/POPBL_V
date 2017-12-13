@@ -277,22 +277,22 @@ public class RecordPanel extends JPanel implements ActionListener, ListSelection
 		} else if (ae.getActionCommand().equals("delete")) {
 			int answer = JOptionPane.showConfirmDialog(window, "Delete current record?", "Alert!",
 					JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-
 			if (answer == 0) {
-				recordModel.removeElement(recordJList.getSelectedValue());
-				setSystemStatus("delete");
 				try {
-//					File file = new File(recordModel.getElementAt((recordJList.getSelectedValue()));
-//					file.delete();
+					Record recordToDelete = recordJList.getSelectedValue();
+					new File(recordToDelete.getRelativePath()).delete();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
+				recordModel.removeElement(recordJList.getSelectedValue());
+				setSystemStatus("delete");
 			}
 			recordJList.setSelectedIndex(recordModel.size() - 1);
 		} else if (ae.getActionCommand().equals("record")) {
 			if (!recordON) {
 				startRecord();
 			} else {
+				References.KEYLISTENER_PANEL.stopTransmission();
 				stopRecord();
 			}
 		}
@@ -310,7 +310,6 @@ public class RecordPanel extends JPanel implements ActionListener, ListSelection
 				References.CHRONOMETER.setChronometer("00 : 00 : 00");
 			}
 		}
-
 	}
 
 	public List<Record> getRecordList() {
@@ -336,9 +335,8 @@ public class RecordPanel extends JPanel implements ActionListener, ListSelection
 		record.setIcon(new ImageIcon(References.STARTREC_IMAGE));
 		References.CHRONOMETER.stop();
 		setSystemStatus("transmissionOFF");
-		recordJList.setSelectedIndex(recordModel.size() - 1);
-
 		References.COMMUNICATION_HANDLER.stopRecord();
+		recordJList.setSelectedIndex(recordModel.size() - 1);
 	}
 
 	public DefaultListModel<Record> getRecordModel() {
