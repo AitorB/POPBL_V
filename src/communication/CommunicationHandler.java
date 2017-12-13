@@ -196,5 +196,3 @@ public class CommunicationHandler implements Observer {
 		return this.IsChannelReady;
 	}
 }
-
-/** Text */

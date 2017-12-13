@@ -1,6 +1,4 @@
-/controller/
-/dialog/
-/interfaces/
-/main/
 /resources/
 /communication/
+/controller/
+/main/

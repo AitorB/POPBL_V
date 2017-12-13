@@ -28,8 +28,8 @@ public class Chronometer extends JPanel implements ActionListener {
 
 	private JLabel chronometer;
 	private Timer timer;
-	private int minute, second, milisecond;
-	private boolean pause = false;
+	private int minutes, seconds, milliseconds;
+	private boolean paused = false;
 
 	public Chronometer(Color fontColor, Font font, Color backgroundColor, boolean opaque) {
 		this.setLayout(new BorderLayout());
@@ -47,15 +47,15 @@ public class Chronometer extends JPanel implements ActionListener {
 	}
 
 	public void start() {
-		if (!pause) {
-			minute = 0;
-			second = 0;
-			milisecond = 0;
+		if (!paused) {
+			minutes = 0;
+			seconds = 0;
+			milliseconds = 0;
 
 			timer.setInitialDelay(0);
 			timer.start();
 		} else {
-			pause = false;
+			paused = false;
 			timer.start();
 		}
 
@@ -67,38 +67,38 @@ public class Chronometer extends JPanel implements ActionListener {
 	}
 
 	public void pause() {
-		pause = true;
+		paused = true;
 		timer.stop();
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		chronometer.setText(String.format("%02d : %02d : %02d", minute, second, milisecond));
+		chronometer.setText(String.format("%02d : %02d : %02d", minutes, seconds, milliseconds));
 
-		milisecond++;
-		if (milisecond == 100) {
-			milisecond = 0;
-			second++;
+		milliseconds++;
+		if (milliseconds == 100) {
+			milliseconds = 0;
+			seconds++;
 		}
-		if (second == 60) {
-			second = 0;
-			minute++;
+		else if (seconds == 60) {
+			seconds = 0;
+			minutes++;
 		}
 	}
 
 	public int getMinute() {
-		return this.minute;
+		return this.minutes;
 	}
 
 	public int getSecond() {
-		return this.second;
+		return this.seconds;
 	}
 
 	public int getMilisecond() {
-		return this.milisecond;
+		return this.milliseconds;
 	}
 
-	public void setChronometer(String newValue) {
+	public void setChronometerValue (String newValue) {
 		this.chronometer.setText(newValue);
 	}
 }
