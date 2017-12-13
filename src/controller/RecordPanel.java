@@ -22,6 +22,7 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +39,6 @@ import javax.swing.JScrollPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import dialog.RecordDialog;
 import main.References;
 import resources.Chronometer;
 
@@ -261,29 +261,35 @@ public class RecordPanel extends JPanel implements ActionListener, ListSelection
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getActionCommand().equals("play")) {
+	public void actionPerformed(ActionEvent ae) {
+		if (ae.getActionCommand().equals("play")) {
 			setSystemStatus("play");
 			References.CLIP_PLAYER.play();
 
-		} else if (e.getActionCommand().equals("pause")) {
+		} else if (ae.getActionCommand().equals("pause")) {
 			setSystemStatus("pause");
 			References.CLIP_PLAYER.pause();
 
-		} else if (e.getActionCommand().equals("stop")) {
+		} else if (ae.getActionCommand().equals("stop")) {
 			setSystemStatus("stop");
 			References.CLIP_PLAYER.stop();
 
-		} else if (e.getActionCommand().equals("delete")) {
+		} else if (ae.getActionCommand().equals("delete")) {
 			int answer = JOptionPane.showConfirmDialog(window, "Delete current record?", "Alert!",
 					JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 
 			if (answer == 0) {
 				recordModel.removeElement(recordJList.getSelectedValue());
 				setSystemStatus("delete");
+				try {
+//					File file = new File(recordModel.getElementAt((recordJList.getSelectedValue()));
+//					file.delete();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 			recordJList.setSelectedIndex(recordModel.size() - 1);
-		} else if (e.getActionCommand().equals("record")) {
+		} else if (ae.getActionCommand().equals("record")) {
 			if (!recordON) {
 				startRecord();
 			} else {
@@ -333,13 +339,10 @@ public class RecordPanel extends JPanel implements ActionListener, ListSelection
 		recordJList.setSelectedIndex(recordModel.size() - 1);
 
 		References.COMMUNICATION_HANDLER.stopRecord();
+	}
 
-		RecordDialog dialog = new RecordDialog(window, 420, 150);
-		if (dialog.getSaveRecord()) {
-			recordModel.addElement(new Record(dialog.getTitle(), References.CHRONOMETER.getMinute(), References.CHRONOMETER.getSecond(),
-					References.CHRONOMETER.getMilisecond()));
-			setSystemStatus("stop");
-		}
+	public DefaultListModel<Record> getRecordModel() {
+		return recordModel;
 	}
 
 	public Record getSelectedRecord() {

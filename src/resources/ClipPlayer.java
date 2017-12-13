@@ -39,7 +39,7 @@ public class ClipPlayer implements LineListener {
 	public void play() {
 		if (clip == null) {
 			try {
-				loadClip(new File(References.RECORD_PANEL.getSelectedRecord().getRoute()));
+				loadClip(new File(References.RECORD_PANEL.getSelectedRecord().getRelativePath()));
 				clip.start();
 				clip.addLineListener(this);
 			} catch (Exception e) {

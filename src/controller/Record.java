@@ -13,13 +13,15 @@
 
 package controller;
 
+import java.io.File;
 import java.io.Serializable;
 
 public class Record implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private String title;
-	private String route;
+	private String relativePath;
+	private String absolutePath;
 	private int minute;
 	private int second;
 	private int milisecond;
@@ -29,19 +31,24 @@ public class Record implements Serializable {
 		this.second = second;
 		this.milisecond = milisecond;
 		this.title = title + ".wav";
-		buildRoute(title);
+		buildPath(this.title);
 	}
 
-	private void buildRoute(String title) {
-		this.route = "record\\" + title + ".wav";
+	private void buildPath(String title) {
+		this.relativePath = "record\\" + title;
+		this.absolutePath = (new File(title).getAbsolutePath());
 	}
 
 	public String getTitle() {
 		return this.title;
 	}
 
-	public String getRoute() {
-		return this.route;
+	public String getRelativePath() {
+		return this.relativePath;
+	}
+
+	public String getAbsolutePath() {
+		return this.absolutePath;
 	}
 
 	public int getMinute() {

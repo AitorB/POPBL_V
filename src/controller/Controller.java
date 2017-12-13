@@ -40,6 +40,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import communication.CommunicationHandler;
 import main.References;
 import resources.Background;
 import resources.ClipPlayer;
@@ -53,7 +54,7 @@ public class Controller extends JFrame {
 
 	public Controller() {
 		References.CLIP_PLAYER = new ClipPlayer(this);
-		References.COMMUNICATION_HANDLER = new CommunicationHandler();
+		References.COMMUNICATION_HANDLER = new CommunicationHandler(this);
 		loadData();
 		mainProgram();
 	}
@@ -125,10 +126,10 @@ public class Controller extends JFrame {
 	private void loadData() {
 		recordList = new ArrayList<>();
 
-		try (ObjectInputStream reader = new ObjectInputStream(new FileInputStream(References.RECORD_DATA))) {
+		try (ObjectInputStream reader = new ObjectInputStream(new FileInputStream(References.RECORD_PATH))) {
 			recordList = (List<Record>) reader.readObject();
 		} catch (FileNotFoundException e) {
-			File archive = new File(References.RECORD_DATA);
+			File archive = new File(References.RECORD_PATH);
 			try {
 				archive.createNewFile();
 			} catch (IOException ex) {
@@ -142,7 +143,7 @@ public class Controller extends JFrame {
 	}
 
 	private void saveData() {
-		try (ObjectOutputStream writer = new ObjectOutputStream(new FileOutputStream(References.RECORD_DATA))) {
+		try (ObjectOutputStream writer = new ObjectOutputStream(new FileOutputStream(References.RECORD_PATH))) {
 			recordList = References.RECORD_PANEL.getRecordList();
 			writer.writeObject(recordList);
 		} catch (FileNotFoundException e) {

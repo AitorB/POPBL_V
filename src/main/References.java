@@ -13,7 +13,7 @@
 
 package main;
 
-import controller.CommunicationHandler;
+import communication.CommunicationHandler;
 import controller.KeyListenerPanel;
 import controller.RecordPanel;
 import controller.StatusPanel;
@@ -56,14 +56,14 @@ public final class References {
 	public static final String STOP = "STOP";
 
 	/** Record data storage */
-	public static final String RECORD_DATA = "data\\records.dat";
-
+	public static final String RECORD_PATH = "data\\records.dat";
+	
 	/** Communication terminate duration */
 	public final static int DURATION_SEC = 10;
 
 	/** Audio sampling values */
-	public final static float SAMPLE_RATE = 16000.0F; // Number of samples per second: 8000, 11025, 16000, 22050, 44100
-	public final static int SAMPLE_SIZE_IN_BITS = 8; // Number of bits in each sample: 8, 16
+	public final static float SAMPLE_RATE = 8000.0F; // Samples per second: 8000, 11025, 16000, 22050, 44100
+	public final static int SAMPLE_SIZE_IN_BITS = 16; // Bits in each sample: 8, 16
 	public final static int CHANNELS = 1; // Mono: 1, Stereo: 2
 	public final static boolean SIGNED = true; // Data signed or unsigned
 	public final static boolean BIG_ENDIAN = false; // bigEndian: ABCD, littleEndian: DCBA

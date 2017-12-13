@@ -76,18 +76,22 @@ public class KeyListenerPanel extends JPanel {
 
 	public void startTransmission() {
 		if (References.COMMUNICATION_HANDLER.getIsChannelReady()) {
-			References.COMMUNICATION_HANDLER.start();
+			References.COMMUNICATION_HANDLER.startTransmission();
 		} else {
-			JOptionPane.showConfirmDialog(window, "Checking ommunication protocol, wait!", "Warning!",
+			JOptionPane.showConfirmDialog(window, "Checking ommunication protocol, channel not ready!", "Warning!",
 					JOptionPane.CLOSED_OPTION, JOptionPane.WARNING_MESSAGE);
 		}
 	}
 
 	public void stopTransmission() {
-		References.COMMUNICATION_HANDLER.stop();
+		References.COMMUNICATION_HANDLER.stopTransmission();
 	}
 
 	public void setClipON(boolean clipON) {
 		this.clipON = clipON;
+	}
+
+	public boolean isKeyIsDown() {
+		return keyIsDown;
 	}
 }
