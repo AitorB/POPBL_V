@@ -23,67 +23,96 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-public class Chronometer extends JPanel implements ActionListener {
+public class Chronometer extends JPanel {
 	private static final long serialVersionUID = 1L;
 
 	private JLabel chronometer;
-	private Timer timer;
-	private int minutes, seconds, milliseconds;
+	private Timer timerSecond, timerHundredth;
+	private int minutes, seconds, hundredths;
 	private boolean paused = false;
+	private boolean newSecond = false;
 
 	public Chronometer(Color fontColor, Font font, Color backgroundColor, boolean opaque) {
 		this.setLayout(new BorderLayout());
 		this.setBackground(backgroundColor);
 		this.setOpaque(opaque);
 
-		chronometer = new JLabel("00 : 00 : 00");
+		chronometer = new JLabel("00 : 00 . 00");
 		chronometer.setForeground(fontColor);
 		chronometer.setFont(font);
 		chronometer.setHorizontalAlignment(JLabel.CENTER);
 
-		timer = new Timer(10, this);
+		timerDeclaration();
 
 		this.add(chronometer, BorderLayout.CENTER);
+	}
+
+	public void timerDeclaration() {
+		timerSecond = new Timer(1000, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				setText();
+				seconds++;
+				newSecond = true;
+				if (seconds == 60) {
+					seconds = 0;
+					minutes++;
+				}
+			}
+		});
+
+		timerHundredth = new Timer(10, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				setText();
+				hundredths++;
+				if (hundredths == 99 || newSecond) {
+					hundredths = 0;
+					newSecond = false;
+				}
+			}
+		});
+	}
+
+	public void setText() {
+		chronometer.setText(String.format("%02d : %02d . %02d", minutes, seconds, hundredths));
 	}
 
 	public void start() {
 		if (!paused) {
 			minutes = 0;
 			seconds = 0;
-			milliseconds = 0;
+			hundredths = 0;
 
-			timer.setInitialDelay(0);
-			timer.start();
+			timerSecond.setInitialDelay(0);
+			timerSecond.start();
+
+			timerHundredth.setInitialDelay(0);
+			timerHundredth.start();
 		} else {
 			paused = false;
-			timer.start();
-		}
 
+			timerSecond.start();
+			timerHundredth.start();
+		}
 	}
 
 	public void stop() {
-		chronometer.setText("00 : 00 : 00");
-		timer.stop();
+		minutes = 0;
+		seconds = 0;
+		hundredths = 0;
+		setText();
+		
+		paused = false;
+		timerSecond.stop();
+		timerHundredth.stop();
 	}
 
 	public void pause() {
 		paused = true;
-		timer.stop();
-	}
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		chronometer.setText(String.format("%02d : %02d : %02d", minutes, seconds, milliseconds));
-
-		milliseconds++;
-		if (milliseconds == 100) {
-			milliseconds = 0;
-			seconds++;
-		}
-		else if (seconds == 60) {
-			seconds = 0;
-			minutes++;
-		}
+		timerSecond.stop();
+		timerHundredth.stop();
 	}
 
 	public int getMinute() {
@@ -94,11 +123,11 @@ public class Chronometer extends JPanel implements ActionListener {
 		return this.seconds;
 	}
 
-	public int getMilisecond() {
-		return this.milliseconds;
+	public int getHundredths() {
+		return this.hundredths;
 	}
 
-	public void setChronometerValue (String newValue) {
+	public void setChronometerValue(String newValue) {
 		this.chronometer.setText(newValue);
 	}
 }

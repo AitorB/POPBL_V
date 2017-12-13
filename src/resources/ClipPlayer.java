@@ -23,6 +23,7 @@ import javax.sound.sampled.LineListener;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import controller.Record;
 import main.References;
 
 public class ClipPlayer implements LineListener {
@@ -74,9 +75,14 @@ public class ClipPlayer implements LineListener {
 			lastFrame = 0;
 			clip.stop();
 			clip = null;
-			References.CHRONOMETER.stop();
 			References.RECORD_PANEL.setSystemStatus("stop");
 			References.KEYLISTENER_PANEL.setClipON(false);
+			References.CHRONOMETER.stop();
+			if (!References.RECORD_PANEL.getRecordModel().isEmpty()) {
+				Record record = References.RECORD_PANEL.getSelectedRecord();
+				References.CHRONOMETER.setChronometerValue(String.format("%02d : %02d . %02d", record.getMinutes(),
+						record.getSeconds(), record.getHundreths()));
+			}
 		}
 	}
 

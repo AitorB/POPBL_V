@@ -178,6 +178,7 @@ public class RecordPanel extends JPanel implements ActionListener, ListSelection
 			play.setEnabled(true);
 			delete.setEnabled(true);
 			recordJList.setSelectedIndex(recordModel.size() - 1);
+			selectedRecord = recordJList.getSelectedValue();
 		}
 
 		panel.add(play);
@@ -286,8 +287,8 @@ public class RecordPanel extends JPanel implements ActionListener, ListSelection
 				}
 				recordModel.removeElement(recordJList.getSelectedValue());
 				setSystemStatus("delete");
+				recordJList.setSelectedIndex(recordModel.size() - 1);
 			}
-			recordJList.setSelectedIndex(recordModel.size() - 1);
 		} else if (ae.getActionCommand().equals("record")) {
 			if (!recordON) {
 				startRecord();
@@ -304,10 +305,10 @@ public class RecordPanel extends JPanel implements ActionListener, ListSelection
 			JList<?> list = (JList<?>) e.getSource();
 			if (!list.isSelectionEmpty()) {
 				selectedRecord = (Record) list.getSelectedValue();
-				References.CHRONOMETER.setChronometerValue(String.format("%02d : %02d : %02d", selectedRecord.getMinutes(),
-						selectedRecord.getSeconds(), selectedRecord.getMilliseconds()));
+				References.CHRONOMETER.setChronometerValue(String.format("%02d : %02d . %02d", selectedRecord.getMinutes(),
+						selectedRecord.getSeconds(), selectedRecord.getHundreths()));
 			} else {
-				References.CHRONOMETER.setChronometerValue("00 : 00 : 00");
+				References.CHRONOMETER.setChronometerValue("00 : 00 . 00");
 			}
 		}
 	}
@@ -331,9 +332,9 @@ public class RecordPanel extends JPanel implements ActionListener, ListSelection
 	}
 
 	public void stopRecord() {
+		References.CHRONOMETER.pause();
 		recordON = false;
 		record.setIcon(new ImageIcon(References.STARTREC_IMAGE));
-		References.CHRONOMETER.stop();
 		setSystemStatus("transmissionOFF");
 		References.COMMUNICATION_HANDLER.stopRecord();
 		recordJList.setSelectedIndex(recordModel.size() - 1);

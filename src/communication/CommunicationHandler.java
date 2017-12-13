@@ -71,6 +71,7 @@ public class CommunicationHandler implements Observer {
 	public void initializeMixer() {
 		audioFormat = getAudioFormat();
 		dataLineInfo = new DataLine.Info(TargetDataLine.class, audioFormat);
+
 	}
 
 	/** Sending data */
@@ -164,10 +165,11 @@ public class CommunicationHandler implements Observer {
 		RecordDialog dialog = new RecordDialog(window, 420, 150);
 		if (dialog.getAcceptRecord()) {
 			newRecord = new Record(dialog.getTitle(), References.CHRONOMETER.getMinute(),
-					References.CHRONOMETER.getSecond(), References.CHRONOMETER.getMilisecond());
+					References.CHRONOMETER.getSecond(), References.CHRONOMETER.getHundredths());
 			References.RECORD_PANEL.getRecordModel().addElement(newRecord);
 			References.RECORD_PANEL.setSystemStatus("stop");
-
+			References.CHRONOMETER.stop();
+			
 			recordData = byteArrayOutputStream.toByteArray();
 			recordIS = new ByteArrayInputStream(recordData);
 			recordAIS = new AudioInputStream(recordIS, audioFormat, recordData.length / audioFormat.getFrameSize());

@@ -22,12 +22,12 @@ public class Record implements Serializable {
 	private String relativePath;
 	private int minutes;
 	private int seconds;
-	private int milliseconds;
+	private int hundredths;
 
-	public Record(String title, int minutes, int seconds, int milliseconds) {
+	public Record(String title, int minutes, int seconds, int hundredths) {
 		this.minutes = minutes;
 		this.seconds = seconds;
-		this.milliseconds = milliseconds;
+		this.hundredths = hundredths;
 		this.title = title + ".wav";
 		buildPath(this.title);
 	}
@@ -51,8 +51,8 @@ public class Record implements Serializable {
 	public int getSeconds() {
 		return this.seconds;
 	}
-
-	public int getMilliseconds() {
-		return this.milliseconds;
+	
+	public int getHundreths() {
+		return this.hundredths;
 	}
 }
