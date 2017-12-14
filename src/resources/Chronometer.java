@@ -84,10 +84,10 @@ public class Chronometer extends JPanel {
 			seconds = 0;
 			hundredths = 0;
 
-			timerSecond.setInitialDelay(0);
+			timerSecond.setInitialDelay(1000);
 			timerSecond.start();
 
-			timerHundredth.setInitialDelay(0);
+			timerHundredth.setInitialDelay(10);
 			timerHundredth.start();
 		} else {
 			paused = false;
