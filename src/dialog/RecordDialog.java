@@ -40,7 +40,7 @@ public class RecordDialog extends JDialog implements ActionListener {
 	private JTextField textField;
 	private JButton accept;
 
-	protected String title;
+	protected String name;
 	protected boolean acceptRecord;
 
 	public RecordDialog(JFrame window, int width, int height) {
@@ -144,7 +144,7 @@ public class RecordDialog extends JDialog implements ActionListener {
 		if (e.getActionCommand().equals("accept")) {
 			if (!emptyField()) {
 				if (checkData()) {
-					title = textField.getText();
+					name = textField.getText();
 					acceptRecord = true;
 					this.dispose();
 				}
@@ -161,8 +161,8 @@ public class RecordDialog extends JDialog implements ActionListener {
 		}
 	}
 
-	public String getTitle() {
-		return this.title;
+	public String getName() {
+		return this.name;
 	}
 
 	public boolean getAcceptRecord() {

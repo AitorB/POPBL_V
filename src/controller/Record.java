@@ -18,26 +18,22 @@ import java.io.Serializable;
 public class Record implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private String title;
+	private String name;
 	private String relativePath;
 	private int minutes;
 	private int seconds;
 	private int hundredths;
 
-	public Record(String title, int minutes, int seconds, int hundredths) {
+	public Record(String name, int minutes, int seconds, int hundredths) {
 		this.minutes = minutes;
 		this.seconds = seconds;
 		this.hundredths = hundredths;
-		this.title = title + ".wav";
-		buildPath(this.title);
+		this.name = name + ".wav";
+		this.relativePath = "record\\" + this.name;
 	}
 
-	private void buildPath(String title) {
-		this.relativePath = "record\\" + title;
-	}
-
-	public String getTitle() {
-		return this.title;
+	public String getName() {
+		return this.name;
 	}
 
 	public String getRelativePath() {

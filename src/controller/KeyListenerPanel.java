@@ -98,10 +98,10 @@ public class KeyListenerPanel extends JPanel {
 	}
 
 	public void startTransmission() {
-		if (References.COMMUNICATION_HANDLER.getIsChannelReady()) {
+		if (References.COMMUNICATION_HANDLER.stablishCommunication()) {
 			References.COMMUNICATION_HANDLER.startTransmission();
 		} else {
-			JOptionPane.showConfirmDialog(window, "Checking ommunication protocol, channel not ready!", "Warning!",
+			JOptionPane.showConfirmDialog(window, "Stablishing communication, channel not ready!", "Warning!",
 					JOptionPane.CLOSED_OPTION, JOptionPane.WARNING_MESSAGE);
 		}
 	}

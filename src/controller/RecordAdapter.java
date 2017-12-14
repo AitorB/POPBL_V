@@ -32,7 +32,7 @@ public class RecordAdapter implements ListCellRenderer<Record> {
 
 		JPanel panel = new JPanel(new BorderLayout(10, 10));
 
-		JLabel lTitulo = new JLabel(record.getTitle());
+		JLabel lTitulo = new JLabel(record.getName());
 		lTitulo.setFont(new Font("Arial", Font.CENTER_BASELINE, 16));
 		lTitulo.setForeground(selected ? Color.WHITE : Color.BLACK);
 

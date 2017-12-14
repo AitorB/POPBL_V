@@ -58,7 +58,6 @@ public class CommunicationHandler implements Observer {
 	/** Local */
 	private JFrame window;
 	private Countdown countdown;
-	private boolean IsChannelReady = true;
 
 	public CommunicationHandler(JFrame window) {
 		this.window = window;
@@ -164,7 +163,7 @@ public class CommunicationHandler implements Observer {
 		Record newRecord;
 		RecordDialog dialog = new RecordDialog(window, 420, 150);
 		if (dialog.getAcceptRecord()) {
-			newRecord = new Record(dialog.getTitle(), References.CHRONOMETER.getMinute(),
+			newRecord = new Record(dialog.getName(), References.CHRONOMETER.getMinute(),
 					References.CHRONOMETER.getSecond(), References.CHRONOMETER.getHundredths());
 			References.RECORD_PANEL.getRecordModel().addElement(newRecord);
 			References.RECORD_PANEL.setSystemStatus("stop");
@@ -194,7 +193,11 @@ public class CommunicationHandler implements Observer {
 	}
 
 	/** Control purposes */
-	public boolean getIsChannelReady() {
-		return this.IsChannelReady;
+	public boolean stablishCommunication() {
+		boolean IsChannelReady = false;
+		
+		
+		
+		return IsChannelReady;
 	}
 }
