@@ -41,9 +41,11 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import communication.CommunicationHandler;
+import communication.SerialManagement;
 import main.References;
 import resources.Background;
 import resources.ClipPlayer;
+import resources.Countdown;
 import resources.Date;
 import resources.Time;
 
@@ -54,7 +56,9 @@ public class Controller extends JFrame {
 
 	public Controller() {
 		References.CLIP_PLAYER = new ClipPlayer(this);
+		References.SERIAL_MANAGEMENT = new SerialManagement();
 		References.COMMUNICATION_HANDLER = new CommunicationHandler(this);
+		
 		loadData();
 		mainProgram();
 	}

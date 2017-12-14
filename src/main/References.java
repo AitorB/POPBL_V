@@ -14,21 +14,27 @@
 package main;
 
 import communication.CommunicationHandler;
+import communication.SerialManagement;
+import communication.SerialManagement.SerialReader;
 import controller.KeyListenerPanel;
 import controller.RecordPanel;
 import controller.StatusPanel;
 import resources.Chronometer;
 import resources.ClipPlayer;
+import resources.Countdown;
 
 public final class References {
 	/** Main classes references */
+	public static CommunicationHandler COMMUNICATION_HANDLER;
+	public static SerialManagement SERIAL_MANAGEMENT;
+	public static SerialReader SERIAL_READER;
+	public static KeyListenerPanel KEYLISTENER_PANEL;
 	public static RecordPanel RECORD_PANEL;
 	public static StatusPanel STATUS_PANEL;
-	public static KeyListenerPanel KEYLISTENER_PANEL;
-	public static ClipPlayer CLIP_PLAYER;
-	public static CommunicationHandler COMMUNICATION_HANDLER;
 	public static Chronometer CHRONOMETER;
-	
+	public static ClipPlayer CLIP_PLAYER;
+	public static Countdown COUNTDOWN;
+
 	/** Window dimensions */
 	public static final int WIDTH_WINDOW = 1280;
 	public static final int HEIGHT_WINDOW = 720;
@@ -57,7 +63,7 @@ public final class References {
 
 	/** Record data storage */
 	public static final String RECORD_PATH = "data\\records.dat";
-	
+
 	/** Communication terminate duration */
 	public final static int DURATION_SEC = 10;
 
@@ -67,4 +73,9 @@ public final class References {
 	public final static int CHANNELS = 1; // Mono: 1, Stereo: 2
 	public final static boolean SIGNED = true; // Data signed or unsigned
 	public final static boolean BIG_ENDIAN = false; // bigEndian: ABCD, littleEndian: DCBA
+
+	/** Communication parameters */
+	public final static int BAUDRATE = 9600;
+	public final static int DATA_BITS = 296;
+	public final static int DATA_LENGTH = DATA_BITS / 8;
 }
