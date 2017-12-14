@@ -78,4 +78,17 @@ public final class References {
 	public final static int BAUDRATE = 9600;
 	public final static int DATA_BITS = 296;
 	public final static int DATA_LENGTH = DATA_BITS / 8;
+	
+	/** Frame parameters*/
+	public final static int REQUEST_COMMUNICATION = 0;
+	public final static int CONFIRM = 1;
+	public final static int START_FRAME = 2;
+	public final static int FRAME_IN_BETWEEN = 3;
+	public final static int FINAL_FRAME = 4;
+	public final static int FINISH_COMMUNICATION = 5;
+	public final static byte QAM_S0 = 0;
+	public final static byte QAM_S2 = 2; 
+	public final static byte QAM_S5 = 5; 
+	public final static byte QAM_S6 = 6; 
+	
 }
