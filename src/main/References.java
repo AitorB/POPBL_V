@@ -63,7 +63,7 @@ public final class References {
 
 	/** Audio sampling values */
 	public final static float SAMPLE_RATE = 8000.0F; // Samples per second: 8000, 11025, 16000, 22050, 44100
-	public final static int SAMPLE_SIZE_IN_BITS = 16; // Bits in each sample: 8, 16
+	public final static int SAMPLE_SIZE_IN_BITS = 8; // Bits in each sample: 8, 16
 	public final static int CHANNELS = 1; // Mono: 1, Stereo: 2
 	public final static boolean SIGNED = true; // Data signed or unsigned
 	public final static boolean BIG_ENDIAN = false; // bigEndian: ABCD, littleEndian: DCBA

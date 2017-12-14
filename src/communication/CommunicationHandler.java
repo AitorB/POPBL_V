@@ -68,40 +68,41 @@ public class CommunicationHandler implements Observer {
 
 	/** Initialize local mixer: microphone */
 	public void initializeMixer() {
-		audioFormat = getAudioFormat();
+		audioFormat = new AudioFormat(References.SAMPLE_RATE, References.SAMPLE_SIZE_IN_BITS, References.CHANNELS,
+				References.SIGNED, References.BIG_ENDIAN);
 		dataLineInfo = new DataLine.Info(TargetDataLine.class, audioFormat);
-
 	}
 
-	/** Sending data */
+	/** Start transmission data */
 	public void startTransmission() {
 		countdown.stop();
 		References.STATUS_PANEL.setStatus("transmitting");
 		References.RECORD_PANEL.setSystemStatus("transmissionON");
 
-		if (!transmissionON) {
-			transmissionON = true;
-			try {
-				targetDataLine = (TargetDataLine) AudioSystem.getLine(dataLineInfo);
-				targetDataLine.open(audioFormat);
-				targetDataLine.start();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			transmitThread = new Thread(new TransmitThread());
-			transmitThread.start();
-		} else {
+		transmissionON = true;
+		try {
+			targetDataLine = (TargetDataLine) AudioSystem.getLine(dataLineInfo);
+			targetDataLine.open(audioFormat);
 			targetDataLine.start();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+		transmitThread = new Thread(new TransmitThread());
+		transmitThread.start();
 	}
 
-	/** Receiving data */
-	public void stopTransmission() {
+	/** Send data */
+	public void sendData() {
+		targetDataLine.start();
+	}
+
+	/** Receive data */
+	public void receiveData() {
 		countdown.start();
 		References.STATUS_PANEL.setStatus("receiving");
 		targetDataLine.stop();
 	}
-
+	
 	/** End off transmission */
 	@Override
 	public void update(Observable observable, Object object) {
@@ -117,7 +118,7 @@ public class CommunicationHandler implements Observer {
 
 	/** Transmit Thread to send data */
 	public class TransmitThread implements Runnable {
-		byte tempBuffer[] = new byte[8];
+		byte tempBuffer[] = new byte[10000];
 
 		@Override
 		public void run() {
@@ -168,7 +169,7 @@ public class CommunicationHandler implements Observer {
 			References.RECORD_PANEL.getRecordModel().addElement(newRecord);
 			References.RECORD_PANEL.setSystemStatus("stop");
 			References.CHRONOMETER.stop();
-			
+
 			recordData = byteArrayOutputStream.toByteArray();
 			recordIS = new ByteArrayInputStream(recordData);
 			recordAIS = new AudioInputStream(recordIS, audioFormat, recordData.length / audioFormat.getFrameSize());
@@ -180,24 +181,21 @@ public class CommunicationHandler implements Observer {
 				e.printStackTrace();
 			}
 		} else {
-			if(transmissionON) {
+			if (transmissionON) {
 				References.RECORD_PANEL.setSystemStatus("transmissionON");
 			}
 		}
 	}
 
-	/** Define how to sample Audio */
-	private AudioFormat getAudioFormat() {
-		return new AudioFormat(References.SAMPLE_RATE, References.SAMPLE_SIZE_IN_BITS, References.CHANNELS,
-				References.SIGNED, References.BIG_ENDIAN);
-	}
-
 	/** Control purposes */
 	public boolean stablishCommunication() {
 		boolean IsChannelReady = false;
-		
-		
-		
+
 		return IsChannelReady;
+	}
+
+	/**  */
+	public boolean isTransmissionON() {
+		return transmissionON;
 	}
 }

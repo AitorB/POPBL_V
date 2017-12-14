@@ -18,12 +18,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.InputMap;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
+
+import org.w3c.dom.views.AbstractView;
 
 import main.References;
 
@@ -35,6 +38,9 @@ public class KeyListenerPanel extends JPanel {
 	private Thread keyPressedThread;
 	private Thread keyReleasedThread;
 
+	private Action keyPressedAction;
+	private Action keyReleasedAction;
+
 	private InputMap inputMap;
 	private ActionMap actionMap;
 
@@ -45,10 +51,13 @@ public class KeyListenerPanel extends JPanel {
 		super(new FlowLayout());
 		this.window = window;
 
-		keyListener();
+		keyPressedAction = new KeyPressedThread();
+		keyReleasedAction = new KeyReleasedThread();
+
+		initialize();
 	}
 
-	private void keyListener() {
+	private void initialize() {
 		inputMap = getInputMap(WHEN_IN_FOCUSED_WINDOW);
 		actionMap = getActionMap();
 
@@ -59,41 +68,44 @@ public class KeyListenerPanel extends JPanel {
 		keyReleasedThread.start();
 	}
 
-	public class KeyPressedThread implements Runnable {
+	public class KeyPressedThread extends AbstractAction implements Runnable {
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public void run() {
 			inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_T, 0, false), "keyPressed");
-			actionMap.put("keyPressed", new AbstractAction() {
-				private static final long serialVersionUID = 1L;
+			actionMap.put("keyPressed", this);
+		}
 
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					if (!keyIsDown && !clipON) {
-						keyIsDown = true;
-						startTransmission();
-					} else if (clipON) {
-						JOptionPane.showConfirmDialog(window, "Stop the clip before starting a communitacion!",
-								"Error!", JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
-					}
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (!keyIsDown && !clipON) {
+				keyIsDown = true;
+				if (!References.COMMUNICATION_HANDLER.isTransmissionON()) {
+					startTransmission();
+				} else {
+					continueTransmission();
 				}
-			});
+			} else if (clipON) {
+				JOptionPane.showConfirmDialog(window, "Stop the clip before starting a communitacion!", "Error!",
+						JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
+			}
 		}
 	}
 
-	public class KeyReleasedThread implements Runnable {
+	public class KeyReleasedThread extends AbstractAction implements Runnable {
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public void run() {
 			inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_T, 0, true), "keyReleased");
+			actionMap.put("keyReleased", this);
+		}
 
-			actionMap.put("keyReleased", new AbstractAction() {
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					keyIsDown = false;
-					stopTransmission();
-				}
-			});
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			keyIsDown = false;
+			stopTransmission();
 		}
 	}
 
@@ -107,7 +119,13 @@ public class KeyListenerPanel extends JPanel {
 	}
 
 	public void stopTransmission() {
-		References.COMMUNICATION_HANDLER.stopTransmission();
+		if (References.COMMUNICATION_HANDLER.stablishCommunication()) {
+			References.COMMUNICATION_HANDLER.receiveData();
+		}
+	}
+
+	public void continueTransmission() {
+		References.COMMUNICATION_HANDLER.sendData();
 	}
 
 	public void setClipON(boolean clipON) {
