@@ -26,25 +26,26 @@ import interfaces.Observable;
 import interfaces.Observer;
 import main.References;
 
-public class SerialManagement {
+public class SerialManagement implements Observable {
+	/** Observable class */
+	private Observer observer;
+	
 	/** Threads */
 	private Thread writeThread;
 	private Thread readThread;
 
-	/** Data management byte arrays */
-	private static byte[] sendData;
-	private static byte[] received;
-	private static byte[] receivedData;
-	private static List<Byte> buffer;
-
-	/** Booleans */
-	private static boolean receive = false;
-	private static boolean connected = false;
+	/**  */
+	private static Frame sendFrame;
+	private static Frame receivedFrame;
+	private static List<Frame> receiveBuffer;
 
 	/** Input and Output streams */
 	private InputStream inputStream;
 	private OutputStream outputStream;
-
+	
+	/** Booleans */
+	private static boolean connected = false;
+	
 	/** Constructor */
 	public SerialManagement() {
 		this.openPort();
@@ -59,13 +60,11 @@ public class SerialManagement {
 				System.out.println("Connected to port: " + portName);
 				connected = true;
 			} catch (Exception e) {
-				/**
-				 * System.out.println("\nError opening the port: " + portName + "'");
-				 */
+				// System.out.println("Error opening the port: " + portName);
 			}
 		}
 		if (!connected) {
-			System.out.println("\nError: Unnable to connect");
+			System.out.println("Error: Unable to connect through serial port!");
 		}
 	}
 
@@ -86,7 +85,7 @@ public class SerialManagement {
 				this.inputStream = serialPort.getInputStream();
 				this.outputStream = serialPort.getOutputStream();
 
-				References.SERIAL_READER = new SerialReader(inputStream);
+				References.SERIAL_READER = new SerialReader(this.inputStream);
 				readThread = new Thread(References.SERIAL_READER);
 				readThread.start();
 			} else {
@@ -96,9 +95,7 @@ public class SerialManagement {
 	}
 
 	/** Thread methods: read thread */
-	public static class SerialReader implements Runnable, Observable {
-		private Observer observer;
-
+	public static class SerialReader implements Runnable {
 		private InputStream InputStream;
 
 		public SerialReader(InputStream inputStream) {
@@ -106,57 +103,41 @@ public class SerialManagement {
 		}
 
 		public void run() {
-			buffer = new ArrayList<>();
-			received = new byte[References.DATA_LENGTH];
-			int length = -1;
+			List<Byte> dataBuffer = new ArrayList<>();
+			byte[] dataReceived = new byte[References.FRAME_LENGTH];
+			int length;
+			boolean dataReaded = false;
 
 			try {
 				while (true) {
-					while ((length = this.InputStream.read(received)) > 0) {
+					while ((length = this.InputStream.read(dataReceived)) > 0) {
 						for (int i = 0; i < length; i++) {
-							buffer.add(received[i]);
+							dataBuffer.add(dataReceived[i]);
 						}
-						receive = true;
+						dataReaded = true;
 					}
-					if (receive == true) {
-						receivedData = new byte[buffer.size()];
-
-						for (int i = 0; i < buffer.size(); i++) {
-							receivedData[i] = buffer.get(i);
-						}
+					if (dataReaded == true) {
+						receivedFrame = new Frame(arrayListToArray(dataBuffer));
+						References.SERIAL_MANAGEMENT.addReceivedBuffer(receivedFrame);
 						
-						this.notifyObservers();
-						buffer.clear();
-						receive = false;
+						dataReaded = false;
+						dataBuffer.clear();
 					}
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
-
-		@Override
-		public void addObserver(Observer observer) {
-			this.observer = observer;
+		
+		private byte[] arrayListToArray(List<Byte> buffer) {
+			byte[] receivedFrame = new byte[References.FRAME_LENGTH];
+			
+			for (int i = 0; i < buffer.size(); i++) {
+				receivedFrame[i] = buffer.get(i);
+			}
+			
+			return receivedFrame;
 		}
-
-		@Override
-		public void removeObserver(Observer observer) {
-			this.observer = null;
-		}
-
-		@Override
-		public void notifyObservers() {
-			this.observer.update(this, this);
-		}
-	}
-
-	/** Method to send the wanted byte array */
-	@SuppressWarnings("static-access")
-	public void sendData(byte[] frame) {
-		this.sendData = frame;
-		writeThread = new Thread(new SerialWriter(outputStream));
-		writeThread.start();
 	}
 
 	/** Thread methods: write thread */
@@ -169,19 +150,60 @@ public class SerialManagement {
 
 		public void run() {
 			try {
-				this.outputStream.write(sendData);
+				this.outputStream.write(sendFrame.getFrame());
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 	}
 
-	/** Getters and Setters */
-	public static boolean isConnected() {
-		return connected;
+	/** Method to send a Frame */
+	public void sendFrame(Frame frame) {
+		sendFrame = frame;
+		writeThread = new Thread(new SerialWriter(outputStream));
+		writeThread.start();
 	}
 
-	public static byte[] getReceivedData() {
-		return receivedData;
+	private void addReceivedBuffer(Frame frame) {
+		receiveBuffer.add(frame);
+		this.notifyObservers();
+	}
+	
+	@Override
+	public void addObserver(Observer observer) {
+		this.observer = observer;
+	}
+
+	@Override
+	public void removeObserver(Observer observer) {
+		this.observer = null;
+	}
+
+	@Override
+	public void notifyObservers() {
+		this.observer.update(this, this);
+	}
+	
+	/** Getters and Setters */
+	public boolean isConnected() {
+		return connected;
+	}
+	
+	public List<Frame> getReceivedBuffer() {
+		return receiveBuffer;
 	}
 }
+
+/**
+ * Proceso de lectura de frame:
+ * 1) comprobar que el checkSum está bien 
+ * 2) Si está bien,coger contador y validar 
+ * 3) Leer tipo de frame 
+ * 3.1) value == 0 : enviar frame con value = 1. (Confirmación) 
+ * 3.2) value == 1 : enviar frames con datos y value = 2 (startFrame = true) || Luego con value = 3 
+ * 3.3) value == 2 : Leer primera trama del paquete 
+ * 3.4) value == 3 : Leer trama intermedia 
+ * 3.5) value == 4 : Leer trama final del paquete 
+ * 3.6) value == 5 : Leer final de la comunicación
+ * 
+ */

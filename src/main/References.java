@@ -14,6 +14,7 @@
 package main;
 
 import communication.CommunicationHandler;
+import communication.FrameManagement;
 import communication.SerialManagement;
 import communication.SerialManagement.SerialReader;
 import controller.KeyListenerPanel;
@@ -22,18 +23,21 @@ import controller.StatusPanel;
 import resources.Chronometer;
 import resources.ClipPlayer;
 import resources.Countdown;
+import resources.Reconnect;
 
 public final class References {
 	/** Main classes references */
-	public static CommunicationHandler COMMUNICATION_HANDLER;
+	public static FrameManagement FRAME_MANAGEMENT;
 	public static SerialManagement SERIAL_MANAGEMENT;
 	public static SerialReader SERIAL_READER;
+	public static CommunicationHandler COMMUNICATION_HANDLER;
 	public static KeyListenerPanel KEYLISTENER_PANEL;
 	public static RecordPanel RECORD_PANEL;
 	public static StatusPanel STATUS_PANEL;
 	public static Chronometer CHRONOMETER;
 	public static ClipPlayer CLIP_PLAYER;
 	public static Countdown COUNTDOWN;
+	public static Reconnect RECONNECT;
 
 	/** Window dimensions */
 	public static final int WIDTH_WINDOW = 1280;
@@ -48,13 +52,15 @@ public final class References {
 	public static final String DELETE_IMAGE = "image\\delete.png";
 	public static final String STARTREC_IMAGE = "image\\startRec.png";
 	public static final String STOPREC_IMAGE = "image\\stopRec.png";
-	public static final String TRANSMITTING_IMAGE = "image\\green.png";
 	public static final String STANDBY_IMAGE = "image\\yellow.png";
+	public static final String TRANSMITTING_IMAGE = "image\\green.png";
+	public static final String WAITTING_IMAGE = "image\\blue.png";
 	public static final String RECEIVING_IMAGE = "image\\red.png";
 
 	/** Record status handler */
-	public static final String TRANSMITTING_TEXT = "TRANSMITTING";
 	public static final String STANDBY_TEXT = "STANDBY";
+	public static final String TRANSMITTING_TEXT = "TRANSMITTING";
+	public static final String WAITTING_TEXT = "WAITTING";
 	public static final String RECEIVING_TEXT = "RECEIVING";
 
 	/** Clip handler */
@@ -64,37 +70,45 @@ public final class References {
 	/** Record data storage */
 	public static final String RECORD_PATH = "data\\records.dat";
 
-	/** Communication terminate duration */
-	public final static int DURATION_SEC = 10;
+	/** Communication terminate parameters */
+	public static final int COUNTDOWN_SEC = 10;
+	public static final int RECONNECT_MILLISEC = 250;
+	public static final int TRIES = 4;
+	public static boolean TRANSMISSION_ON = false;
+	public static boolean CHANNEL_READY = false;
+
 
 	/** Audio sampling values */
-	public final static float SAMPLE_RATE = 8000.0F; // Samples per second: 8000, 11025, 16000, 22050, 44100
-	public final static int SAMPLE_SIZE_IN_BITS = 8; // Bits in each sample: 8, 16
-	public final static int CHANNELS = 1; // Mono: 1, Stereo: 2
-	public final static boolean SIGNED = true; // Data signed or unsigned
-	public final static boolean BIG_ENDIAN = false; // bigEndian: ABCD, littleEndian: DCBA
+	public static final float SAMPLE_RATE = 8000.0F; // Samples per second: 8000, 11025, 16000, 22050, 44100
+	public static final int SAMPLE_SIZE_IN_BITS = 8; // Bits in each sample: 8, 16
+	public static final int CHANNELS = 1; // Mono: 1, Stereo: 2
+	public static final boolean SIGNED = false; // Data signed or unsigned
+	public static final boolean BIG_ENDIAN = true; // bigEndian: ABCD, littleEndian: DCBA
 
 	/** Serial parameters */
-	public final static int BAUDRATE = 9600;
+	public static final int BAUDRATE = 9600;
 
 	/** Frame data types */
-	public final static int REQUEST_COMMUNICATION = 0;
-	public final static int CONFIRM = 1;
-	public final static int START_FRAME = 2;
-	public final static int FRAME_IN_BETWEEN = 3;
-	public final static int FINAL_FRAME = 4;
-	public final static int FINISH_COMMUNICATION = 5;
+	public static final int REQUEST_COMMUNICATION = 0;
+	public static final int CONFIRM = 1;
+	public static final int START_FRAME = 2;
+	public static final int FRAME_IN_BETWEEN = 3;
+	public static final int FINAL_FRAME = 4;
+	public static final int FINISH_COMMUNICATION = 5;
 
 	/** Synchronizations symbols */
-	public final static byte QAM_S0 = 0;
-	public final static byte QAM_S2 = 2;
-	public final static byte QAM_S5 = 5;
-	public final static byte QAM_S6 = 6;
+	public static final byte QAM_S0 = 0;
+	public static final byte QAM_S2 = 2;
+	public static final byte QAM_S5 = 5;
+	public static final byte QAM_S6 = 6;
 
 	/** Frame parameters */
-	public final static int FRAME_LENGTH = 37;
-	public final static int HEADER_LENGTH = 4;
-	public final static int DATA_LENGTH = 32;
-	public final static int CHECKSUM_LENGTH = 1;
+	public static final int FRAME_LENGTH = 37; // 37 bytes = 296 bits
+	public static final int PREAMBLE_LENGTH = 2;
+	public static final int TYPE_ID_LENGTH = 1;
+	public static final int DATAlENGTH_LENGTH = 1;
+	public static final int HEADER_LENGTH = PREAMBLE_LENGTH + TYPE_ID_LENGTH + DATAlENGTH_LENGTH;
+	public static final int DATA_LENGTH = 32;
+	public static final int CHECKSUM_LENGTH = 1;
 
 }

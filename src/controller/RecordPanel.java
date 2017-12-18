@@ -262,34 +262,34 @@ public class RecordPanel extends JPanel implements ActionListener, ListSelection
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent ae) {
-		if (ae.getActionCommand().equals("play")) {
+	public void actionPerformed(ActionEvent e) {
+		if (e.getActionCommand().equals("play")) {
 			setSystemStatus("play");
 			References.CLIP_PLAYER.play();
 
-		} else if (ae.getActionCommand().equals("pause")) {
+		} else if (e.getActionCommand().equals("pause")) {
 			setSystemStatus("pause");
 			References.CLIP_PLAYER.pause();
 
-		} else if (ae.getActionCommand().equals("stop")) {
+		} else if (e.getActionCommand().equals("stop")) {
 			setSystemStatus("stop");
 			References.CLIP_PLAYER.stop();
 
-		} else if (ae.getActionCommand().equals("delete")) {
+		} else if (e.getActionCommand().equals("delete")) {
 			int answer = JOptionPane.showConfirmDialog(window, "Delete current record?", "Alert!",
 					JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 			if (answer == 0) {
 				try {
 					Record recordToDelete = recordJList.getSelectedValue();
 					new File(recordToDelete.getRelativePath()).delete();
-				} catch (Exception e) {
-					e.printStackTrace();
+				} catch (Exception ex) {
+					ex.printStackTrace();
 				}
 				recordModel.removeElement(recordJList.getSelectedValue());
 				setSystemStatus("delete");
 				recordJList.setSelectedIndex(recordModel.size() - 1);
 			}
-		} else if (ae.getActionCommand().equals("record")) {
+		} else if (e.getActionCommand().equals("record")) {
 			if (!recordON) {
 				startRecord();
 			} else {

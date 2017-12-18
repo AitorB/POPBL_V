@@ -1,98 +1,122 @@
+/** @file FrameManagement.java
+ *  @brief Class to manage sent and received data frames
+ *  @authors
+ *  Name          | Surname        | Email                                |
+ *  ------------- | -------------- | ------------------------------------ |
+ *  Aitor         | Barreiro       | aitor.barreirom@alumni.mondragon.edu |
+ *  Mikel         | Hernandez      | mikel.hernandez@alumni.mondragon.edu |
+ *  Unai          | Iraeta         | unai.iraeta@alumni.mondragon.edu     |
+ *  Iker	      | Mendi          | iker.mendi@alumni.mondragon.edu      |
+ *  Julen	      | Uribarren	   | julen.uribarren@alumni.mondragon.edu |
+ *  @date 20/01/2018
+ */
+
 package communication;
 
 import main.References;
 
 public class FrameManagement {
-
-	byte[] frame;
-	byte[] header;
-	int dataSize;
-	byte counter = 0;
-	byte checksum = 0;
+	private int sendId;
+	private int lastId;
+	private int currentId;
 
 	public FrameManagement() {
-
+		sendId = 0;
+		lastId = 0;
+		currentId = 0;
 	}
 
-	/**
-	 * Method to send the data frame dataType == 0 Request communication dataType ==
-	 * 1 Confirm dataType == 2 Start frame dataType == 3 Frame in-between dataType
-	 * == 4 Final frame dataType == 5 Finish communication
-	 */
-	public byte[] createFrame(byte[] data, int dataType) {
+	/** Request of communication frame */
+	public Frame requestCommunicationFrame() {
+		byte[] empty = new byte[References.DATA_LENGTH];
 
-		this.header = obtainHeader(data, dataType);
-
-		frame = new byte[References.FRAME_LENGTH];
-
-		System.arraycopy(header, 0, frame, 0, References.HEADER_LENGTH);
-		System.arraycopy(data, 0, frame, References.HEADER_LENGTH, References.DATA_LENGTH);
-		System.arraycopy(checksum, 0, frame, References.HEADER_LENGTH + References.DATA_LENGTH,
-				References.CHECKSUM_LENGTH);
-
-		return this.frame;
+		return new Frame(References.REQUEST_COMMUNICATION, sendId, empty);
 	}
 
-	
-	/** Proceso de lectura de frame
-	 *  1) comprobar que el  checkSum está bien
-	 *  2) Si está bien,coger contador y validar
-	 *  3) Leer tipo de frame
-	 *  	3.1) value == 0 : enviar frame con value = 1. (Confirmación)
-	 *  	3.2) value == 1 : enviar frames con datos y value = 2 (startFrame = true) || Luego con value = 3
-	 *  	3.3) value == 2 : Leer primera trama del paquete
-	 *  	3.4) value == 3 : Leer trama intermedia
-	 *  	3.5) value == 4 : Leer trama final del paquete
-	 *  	3.6) value == 5 : Leer final de la comunicación
-	 *  	
-	 *  */
-	public byte[] readFrame(byte[] frame) {
-		byte[] frame2 = null;
-		
+	/** Confirmation to start communication frame */
+	public Frame confirmCommunicationFrame() {
+		byte[] empty = new byte[References.DATA_LENGTH];
+
+		return new Frame(References.CONFIRM, sendId, empty);
+	}
+
+	/** Start frame */
+	public Frame startFrame(byte[] data) {
+		generateSendId();
+
+		return new Frame(References.START_FRAME, sendId, data);
+	}
+
+	/** Between frame */
+	public Frame betweenFrame(byte[] data) {
+		generateSendId();
+
+		return new Frame(References.FRAME_IN_BETWEEN, sendId, data);
+	}
+
+	/** Final frame */
+	public Frame finalFrame(byte[] data) {
+		generateSendId();
+
+		return new Frame(References.FINAL_FRAME, sendId, data);
+	}
+
+	/** Start frame of communication */
+	public Frame finishCommunicationFrame() {
+		byte[] empty = new byte[References.DATA_LENGTH];
+
+		generateSendId();
+
+		Frame frame = new Frame(References.FINAL_FRAME, sendId, empty);
+
+		sendId = 0;
+
 		return frame;
 	}
 
-	public byte[] obtainHeader(byte[] data, int dataType) {
-		byte s0, s2, s5, s6;
-		s0 = References.QAM_S0 << 4;
-		s2 = References.QAM_S2;
-		s5 = References.QAM_S5 << 4;
-		s6 = References.QAM_S6;
-
-		byte[] preamble = { (byte) (s0 + s2), (byte) (s5 + s6) };
-
-		counter = (byte) (counter << 4);
-		byte type = (byte) dataType;
-
-		byte counterType = (byte) (counter + type);
-
-		byte length = (byte) data.length;
-
-		byte[] header = new byte[References.HEADER_LENGTH];
-
-		System.arraycopy(preamble, 0, header, 0, preamble.length);
-		System.arraycopy(counterType, 0, header, preamble.length, 1);
-		System.arraycopy(length, 0, header, preamble.length + 1, 1);
-
-		if (counter == 15) {
-			counter = 0;
+	/** Generates next send ID */
+	private void generateSendId() {
+		if (sendId == 15) {
+			sendId = 0;
 		} else {
-			counter++;
+			sendId++;
 		}
-
-		return header;
 	}
 	
-	
-	public boolean validateFrame(byte type, byte checkSum) {
+	public boolean validateFrame(Frame frame) {
 		boolean valid = false;
+
+		currentId = frame.getId();
+
+		if (validateChecksum(frame)) {
+			if (currentId == 0 && lastId == 0) {
+				lastId = -1;
+			} else if (currentId == 0 && lastId == 15) {
+				lastId = -1;
+			}
+			if (currentId == (lastId + 1)) {
+				valid = true;
+			} else {
+				valid = false;
+				System.out.println("ERROR: Invalid ID on frame " + frame.getId());
+			}
+		} else {
+			valid = false;
+			System.out.println("ERROR: Invalid checksum on frame " + frame.getId());
+		}
+
+		lastId = currentId;
 
 		return valid;
 	}
-	
-	public boolean validateCheckSum() {
-		boolean valid = true;
-		
+
+	private boolean validateChecksum(Frame frame) {
+		boolean valid = false;
+
+		if (frame.getChecksum() == frame.generateChecksum()) {
+			valid = true;
+		}
+
 		return valid;
 	}
 }

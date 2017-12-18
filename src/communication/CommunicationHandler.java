@@ -17,7 +17,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.sound.sampled.AudioFileFormat;
@@ -29,20 +29,20 @@ import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
 import javax.swing.JFrame;
 
-import communication.SerialManagement.SerialReader;
 import controller.Record;
 import dialog.RecordDialog;
 import interfaces.Observable;
 import interfaces.Observer;
 import main.References;
 import resources.Countdown;
+import resources.Reconnect;
 
 public class CommunicationHandler implements Observer {
 	/** Record data */
 	private AudioFileFormat.Type fileType = AudioFileFormat.Type.WAVE; // Audio file format
 	private AudioInputStream recordAIS;
 	private byte[] recordData;
-	//private List<Byte> recordData;
+	// private List<Byte> recordData;
 	private InputStream recordIS;
 
 	/** Transmitted data */
@@ -52,11 +52,9 @@ public class CommunicationHandler implements Observer {
 	private AudioInputStream audioInputStream;
 	private SourceDataLine sourceDataLine;
 	private ByteArrayOutputStream byteArrayOutputStream;
-	private boolean transmissionON = false;
 	private byte[] transmitData;
 
 	/** Received data */
-	private byte[] receiveData;
 
 	/** Threads */
 	private Thread transmitThread;
@@ -64,14 +62,19 @@ public class CommunicationHandler implements Observer {
 
 	/** Local */
 	private JFrame window;
+	private int triesCont;
 
 	public CommunicationHandler(JFrame window) {
 		this.window = window;
 
-		References.COUNTDOWN = new Countdown(References.DURATION_SEC);
+		References.COUNTDOWN = new Countdown(References.COUNTDOWN_SEC);
 		References.COUNTDOWN.addObserver(this);
 
-		// References.SERIAL_READER.addObserver(this);
+		References.RECONNECT = new Reconnect(References.RECONNECT_MILLISEC);
+		References.RECONNECT.addObserver(this);
+		
+		References.SERIAL_MANAGEMENT.addObserver(this);
+		
 
 		initializeMixer();
 	}
@@ -82,7 +85,7 @@ public class CommunicationHandler implements Observer {
 				References.SIGNED, References.BIG_ENDIAN);
 		dataLineInfo = new DataLine.Info(TargetDataLine.class, audioFormat);
 
-		//recordData = new ArrayList<>();
+		// recordData = new ArrayList<>();
 	}
 
 	/** Start transmission data */
@@ -91,7 +94,7 @@ public class CommunicationHandler implements Observer {
 		References.STATUS_PANEL.setStatus("transmitting");
 		References.RECORD_PANEL.setSystemStatus("transmissionON");
 
-		transmissionON = true;
+		References.TRANSMISSION_ON = true;
 		try {
 			targetDataLine = (TargetDataLine) AudioSystem.getLine(dataLineInfo);
 			targetDataLine.open(audioFormat);
@@ -117,8 +120,10 @@ public class CommunicationHandler implements Observer {
 	/** Receive data */
 	public void receiveData() {
 		References.COUNTDOWN.start();
-		References.STATUS_PANEL.setStatus("receiving");
-		targetDataLine.stop();
+		References.STATUS_PANEL.setStatus("waitting");
+		if (targetDataLine.isActive()) {
+			targetDataLine.stop();
+		}
 	}
 
 	/**
@@ -133,13 +138,63 @@ public class CommunicationHandler implements Observer {
 			if (References.RECORD_PANEL.getRecordON()) {
 				References.RECORD_PANEL.stopRecord();
 			}
-			transmissionON = false;
+			References.TRANSMISSION_ON = false;
 			targetDataLine.close();
-		} /*else if (observable instanceof SerialReader) {
-			receiveData = References.SERIAL_MANAGEMENT.getReceivedData();
-		}*/
+		} else if (observable instanceof SerialManagement) {
+			readReceivedFrame();
+		} else if (observable instanceof Reconnect) {
+			References.SERIAL_MANAGEMENT.sendFrame(References.FRAME_MANAGEMENT.requestCommunicationFrame());
+		}
 	}
 
+	public void readReceivedFrame() {
+		List<Frame> receivedFrame = References.SERIAL_MANAGEMENT.getReceivedBuffer();
+		Iterator<Frame> iterator = receivedFrame.iterator();
+
+		while (iterator.hasNext()) {
+			Frame frame = iterator.next();
+			
+			if(References.FRAME_MANAGEMENT.validateFrame(frame)) {
+				switch (frame.getType()) {
+				case References.REQUEST_COMMUNICATION:
+					References.SERIAL_MANAGEMENT.sendFrame(References.FRAME_MANAGEMENT.confirmCommunicationFrame());
+					break;
+
+				case References.CONFIRM:
+					References.CHANNEL_READY = true;
+					break;
+
+				case References.START_FRAME:
+					/** 
+					 * 1) Meter al buffer del altavoz para reproducir
+					 * 2) Meter al buffer de grabación si se está grabando
+					 * */ 
+					break;
+
+				case References.FRAME_IN_BETWEEN:
+					/** 
+					 * 1) Meter al buffer del altavoz para reproducir
+					 * 2) Meter al buffer de grabación si se está grabando
+					 * */
+					break;
+
+				case References.FINAL_FRAME:
+					/** 
+					 * 1) Meter al buffer del altavoz para reproducir
+					 * 2) Meter al buffer de grabación si se está grabando
+					 * */
+					break;
+
+				case References.FINISH_COMMUNICATION:
+					References.CHANNEL_READY = false;
+					break;
+				}
+
+				iterator.remove();
+			} 
+		}
+	}
+	
 	/** Transmit Thread to send data */
 	private class TransmitThread implements Runnable {
 		byte tempBuffer[] = new byte[10000];
@@ -172,6 +227,7 @@ public class CommunicationHandler implements Observer {
 		public void run() {
 			// TODO Auto-generated method stub
 		}
+
 	}
 
 	/** Start recoding */
@@ -185,47 +241,54 @@ public class CommunicationHandler implements Observer {
 
 	/** Stop recoding and save if requested */
 	public void stopRecord() {
-		Record newRecord;
 		RecordDialog dialog = new RecordDialog(window, 420, 150);
+
 		if (dialog.getAcceptRecord()) {
-			newRecord = new Record(dialog.getName(), References.CHRONOMETER.getMinute(),
+			Record newRecord = new Record(dialog.getName(), References.CHRONOMETER.getMinute(),
 					References.CHRONOMETER.getSecond(), References.CHRONOMETER.getHundredths());
 			References.RECORD_PANEL.getRecordModel().addElement(newRecord);
 			References.RECORD_PANEL.setSystemStatus("stop");
 			References.CHRONOMETER.stop();
 			/*
-			byte data[];
-
-			data = byteArrayOutputStream.toByteArray();
-
-			for (int i = 0; i < data.length; i++) {
-				recordData.add(data[i]);
-			}
-			*/
+			 * byte data[];
+			 * 
+			 * data = byteArrayOutputStream.toByteArray();
+			 * 
+			 * for (int i = 0; i < data.length; i++) { recordData.add(data[i]); }
+			 */
 			recordData = byteArrayOutputStream.toByteArray();
 			recordIS = new ByteArrayInputStream(recordData);
 			recordAIS = new AudioInputStream(recordIS, audioFormat, recordData.length / audioFormat.getFrameSize());
-			File wavFile = new File(newRecord.getRelativePath()); // Audio file FULLNAME
+			File wavFile = new File(newRecord.getRelativePath());
 			try {
 				AudioSystem.write(recordAIS, fileType, wavFile);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		} else {
-			if (transmissionON) {
+			if (References.TRANSMISSION_ON) {
 				References.RECORD_PANEL.setSystemStatus("transmissionON");
 			}
 		}
+
+		if (References.KEYLISTENER_PANEL.isKeyIsDown()) {
+			References.KEYLISTENER_PANEL.setKeyIsDown();
+			References.KEYLISTENER_PANEL.getKeyReleasedAction().actionPerformed(null);
+		}
 	}
 
-	/** Getters and Setters */
+	/** Establish communication */
 	public boolean stablishCommunication() {
-		boolean IsChannelReady = true;
-
-		return IsChannelReady;
-	}
-
-	public boolean isTransmissionON() {
-		return transmissionON;
+		triesCont = 0;
+		
+		References.RECONNECT.start();
+		
+		if (References.RECONNECT.getTries() < References.TRIES && !References.CHANNEL_READY) {
+			System.out.println("CommunicationHandler linea 287... esto no funciona");
+		}
+		
+		References.RECONNECT.stop();
+		
+		return References.CHANNEL_READY;
 	}
 }

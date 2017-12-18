@@ -21,12 +21,11 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.InputMap;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
-
-import org.w3c.dom.views.AbstractView;
 
 import main.References;
 
@@ -38,7 +37,6 @@ public class KeyListenerPanel extends JPanel {
 	private Thread keyPressedThread;
 	private Thread keyReleasedThread;
 
-	private Action keyPressedAction;
 	private Action keyReleasedAction;
 
 	private InputMap inputMap;
@@ -51,14 +49,12 @@ public class KeyListenerPanel extends JPanel {
 		super(new FlowLayout());
 		this.window = window;
 
-		keyPressedAction = new KeyPressedThread();
 		keyReleasedAction = new KeyReleasedThread();
-
 		initialize();
 	}
 
 	private void initialize() {
-		inputMap = getInputMap(WHEN_IN_FOCUSED_WINDOW);
+		inputMap = getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 		actionMap = getActionMap();
 
 		keyPressedThread = new Thread(new KeyPressedThread());
@@ -79,15 +75,20 @@ public class KeyListenerPanel extends JPanel {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if (!keyIsDown && !clipON) {
-				keyIsDown = true;
-				if (!References.COMMUNICATION_HANDLER.isTransmissionON()) {
-					startTransmission();
-				} else {
-					continueTransmission();
+			if (References.SERIAL_MANAGEMENT.isConnected()) {
+				if (!keyIsDown && !clipON) {
+					keyIsDown = true;
+					if (!References.TRANSMISSION_ON) {
+						startTransmission();
+					} else {
+						continueTransmission();
+					}
+				} else if (clipON) {
+					JOptionPane.showConfirmDialog(window, "Stop the clip before starting a communitacion!", "Error!",
+							JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
 				}
-			} else if (clipON) {
-				JOptionPane.showConfirmDialog(window, "Stop the clip before starting a communitacion!", "Error!",
+			} else {
+				JOptionPane.showConfirmDialog(window, "Unable to connect through serial port!", "Error!",
 						JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
 			}
 		}
@@ -104,8 +105,15 @@ public class KeyListenerPanel extends JPanel {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			keyIsDown = false;
-			stopTransmission();
+			if (References.SERIAL_MANAGEMENT.isConnected()) {
+				if (keyIsDown) {
+					keyIsDown = false;
+					stopTransmission();
+				}
+			} else {
+				JOptionPane.showConfirmDialog(window, "Unable to connect through serial port!", "Error!",
+						JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
+			}
 		}
 	}
 
@@ -113,13 +121,13 @@ public class KeyListenerPanel extends JPanel {
 		if (References.COMMUNICATION_HANDLER.stablishCommunication()) {
 			References.COMMUNICATION_HANDLER.startTransmission();
 		} else {
-			JOptionPane.showConfirmDialog(window, "Stablishing communication, channel not ready!", "Warning!",
-					JOptionPane.CLOSED_OPTION, JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showConfirmDialog(window, "Unable to connect, check communication channel", "Error!",
+					JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
 	public void stopTransmission() {
-		if (References.COMMUNICATION_HANDLER.stablishCommunication()) {
+		if (References.TRANSMISSION_ON) {
 			References.COMMUNICATION_HANDLER.receiveData();
 		}
 	}
@@ -134,5 +142,17 @@ public class KeyListenerPanel extends JPanel {
 
 	public boolean isKeyIsDown() {
 		return keyIsDown;
+	}
+
+	public void setKeyIsDown() {
+		if (keyIsDown) {
+			keyIsDown = false;
+		} else {
+			keyIsDown = true;
+		}
+	}
+
+	public Action getKeyReleasedAction() {
+		return keyReleasedAction;
 	}
 }
