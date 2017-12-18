@@ -73,10 +73,8 @@ public final class References {
 	/** Communication terminate parameters */
 	public static final int COUNTDOWN_SEC = 10;
 	public static final int RECONNECT_MILLISEC = 250;
-	public static final int TRIES = 4;
+	public static final int TRIES_MAX = 4;
 	public static boolean TRANSMISSION_ON = false;
-	public static boolean CHANNEL_READY = false;
-
 
 	/** Audio sampling values */
 	public static final float SAMPLE_RATE = 8000.0F; // Samples per second: 8000, 11025, 16000, 22050, 44100
@@ -87,6 +85,7 @@ public final class References {
 
 	/** Serial parameters */
 	public static final int BAUDRATE = 9600;
+	public static final int RECEIVED_MAX_SIZE = 1024;
 
 	/** Frame data types */
 	public static final int REQUEST_COMMUNICATION = 0;
@@ -103,7 +102,7 @@ public final class References {
 	public static final byte QAM_S6 = 6;
 
 	/** Frame parameters */
-	public static final int FRAME_LENGTH = 37; // 37 bytes = 296 bits
+	public static final int FRAME_LENGTH = 37;
 	public static final int PREAMBLE_LENGTH = 2;
 	public static final int TYPE_ID_LENGTH = 1;
 	public static final int DATAlENGTH_LENGTH = 1;

@@ -79,7 +79,7 @@ public class KeyListenerPanel extends JPanel {
 				if (!keyIsDown && !clipON) {
 					keyIsDown = true;
 					if (!References.TRANSMISSION_ON) {
-						startTransmission();
+						References.COMMUNICATION_HANDLER.stablishCommunication();
 					} else {
 						continueTransmission();
 					}
@@ -118,12 +118,8 @@ public class KeyListenerPanel extends JPanel {
 	}
 
 	public void startTransmission() {
-		if (References.COMMUNICATION_HANDLER.stablishCommunication()) {
-			References.COMMUNICATION_HANDLER.startTransmission();
-		} else {
-			JOptionPane.showConfirmDialog(window, "Unable to connect, check communication channel", "Error!",
-					JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
-		}
+		References.RECONNECT.stop();
+		References.COMMUNICATION_HANDLER.startTransmission();
 	}
 
 	public void stopTransmission() {

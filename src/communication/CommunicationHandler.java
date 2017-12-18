@@ -28,6 +28,7 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 import controller.Record;
 import dialog.RecordDialog;
@@ -62,7 +63,7 @@ public class CommunicationHandler implements Observer {
 
 	/** Local */
 	private JFrame window;
-	private int triesCont;
+	private int tries;
 
 	public CommunicationHandler(JFrame window) {
 		this.window = window;
@@ -91,8 +92,8 @@ public class CommunicationHandler implements Observer {
 	/** Start transmission data */
 	public void startTransmission() {
 		References.COUNTDOWN.stop();
-		References.STATUS_PANEL.setStatus("transmitting");
 		References.RECORD_PANEL.setSystemStatus("transmissionON");
+		References.STATUS_PANEL.setStatus("transmitting");
 
 		References.TRANSMISSION_ON = true;
 		try {
@@ -143,7 +144,14 @@ public class CommunicationHandler implements Observer {
 		} else if (observable instanceof SerialManagement) {
 			readReceivedFrame();
 		} else if (observable instanceof Reconnect) {
-			References.SERIAL_MANAGEMENT.sendFrame(References.FRAME_MANAGEMENT.requestCommunicationFrame());
+			if (tries < References.TRIES_MAX) {
+				References.SERIAL_MANAGEMENT.sendFrame(References.FRAME_MANAGEMENT.requestCommunicationFrame());
+				tries++;
+			} else {
+				References.RECONNECT.stop();
+				JOptionPane.showConfirmDialog(window, "Unable to connect, check communication channel", "Error!",
+						JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
+			}
 		}
 	}
 
@@ -161,10 +169,11 @@ public class CommunicationHandler implements Observer {
 					break;
 
 				case References.CONFIRM:
-					References.CHANNEL_READY = true;
+					References.KEYLISTENER_PANEL.startTransmission();
 					break;
 
 				case References.START_FRAME:
+					References.STATUS_PANEL.setStatus("receiving");
 					/** 
 					 * 1) Meter al buffer del altavoz para reproducir
 					 * 2) Meter al buffer de grabación si se está grabando
@@ -186,7 +195,7 @@ public class CommunicationHandler implements Observer {
 					break;
 
 				case References.FINISH_COMMUNICATION:
-					References.CHANNEL_READY = false;
+					References.STATUS_PANEL.setStatus("waiting");
 					break;
 				}
 
@@ -278,17 +287,9 @@ public class CommunicationHandler implements Observer {
 	}
 
 	/** Establish communication */
-	public boolean stablishCommunication() {
-		triesCont = 0;
+	public void stablishCommunication() {
+		tries = 0;
 		
 		References.RECONNECT.start();
-		
-		if (References.RECONNECT.getTries() < References.TRIES && !References.CHANNEL_READY) {
-			System.out.println("CommunicationHandler linea 287... esto no funciona");
-		}
-		
-		References.RECONNECT.stop();
-		
-		return References.CHANNEL_READY;
 	}
 }
