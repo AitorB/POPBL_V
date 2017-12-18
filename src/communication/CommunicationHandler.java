@@ -121,7 +121,7 @@ public class CommunicationHandler implements Observer {
 	/** Receive data */
 	public void receiveData() {
 		References.COUNTDOWN.start();
-		References.STATUS_PANEL.setStatus("waitting");
+		References.STATUS_PANEL.setStatus("waiting");
 		if (targetDataLine.isActive()) {
 			targetDataLine.stop();
 		}

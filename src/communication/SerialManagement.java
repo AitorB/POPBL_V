@@ -35,7 +35,7 @@ public class SerialManagement implements Observable {
 	private Thread readThread;
 
 	/** Send & receive parameters */
-	private static List<Frame> receiveBuffer;
+	private List<Frame> receiveBuffer;
 	private static int sendId = 0;
 
 	/** Input and Output streams */
@@ -47,7 +47,7 @@ public class SerialManagement implements Observable {
 
 	/** Constructor */
 	public SerialManagement() {
-
+		this.receiveBuffer = new ArrayList<>();
 		this.openPort();
 	}
 
