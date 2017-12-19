@@ -75,15 +75,13 @@ public class KeyListenerPanel extends JPanel {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if (References.SERIAL_MANAGEMENT.isConnected()) {
-				if (!keyIsDown && !clipON) {
-					keyIsDown = true;
-					References.COMMUNICATION_HANDLER.establishCommunication();
-				} else if (clipON) {
-					JOptionPane.showConfirmDialog(window, "Stop the clip before starting a communitacion!", "Error!",
-							JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
-				}
-			} else {
+			if (References.SERIAL_MANAGEMENT.isConnected() && !keyIsDown && !clipON) {
+				keyIsDown = true;
+				References.COMMUNICATION_HANDLER.establishCommunication();
+			} else if (clipON) {
+				JOptionPane.showConfirmDialog(window, "Stop the clip before starting a communitacion!", "Error!",
+						JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
+			} else if (!References.SERIAL_MANAGEMENT.isConnected()) {
 				JOptionPane.showConfirmDialog(window, "Unable to connect through serial port!", "Error!",
 						JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
 			}

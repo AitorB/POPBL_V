@@ -225,20 +225,10 @@ public class SerialManagement implements Observable {
 
 	/** Getters and Setters */
 	public boolean isConnected() {
-		return connected;
+		return this.connected;
 	}
 
 	public List<Frame> getReceivedBuffer() {
 		return receiveBuffer;
 	}
 }
-
-/**
- * Proceso de lectura de frame: 1) comprobar que el checkSum está bien 2) Si
- * está bien,coger contador y validar 3) Leer tipo de frame 3.1) value == 0 :
- * enviar frame con value = 1. (Confirmación) 3.2) value == 1 : enviar frames
- * con datos y value = 2 (startFrame = true) || Luego con value = 3 3.3) value
- * == 2 : Leer primera trama del paquete 3.4) value == 3 : Leer trama intermedia
- * 3.5) value == 4 : Leer trama final del paquete 3.6) value == 5 : Leer final
- * de la comunicación
- */

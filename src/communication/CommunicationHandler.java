@@ -120,7 +120,7 @@ public class CommunicationHandler implements Observer {
 		int numberOfPackets = data.length / References.DATA_LENGTH;
 		int lastPacketLength = data.length - (numberOfPackets * References.DATA_LENGTH);
 		
-		for (int i = 0; i < data.length - lastPacketLength; i = i + References.DATA_LENGTH - 1) {
+		for (int i = 0; i < data.length - lastPacketLength; i = i + References.DATA_LENGTH) {
 			if(i == 0) {
 				System.arraycopy(data, i, sendData, 0, References.DATA_LENGTH);
 				References.FRAME_MANAGEMENT.startFrame(sendData);
@@ -176,7 +176,6 @@ public class CommunicationHandler implements Observer {
 					break;
 
 				case References.FINISH_COMMUNICATION:
-					playThread.stop();
 					receivingON = false;
 					References.STATUS_PANEL.setStatus(References.WAITING);
 					References.COUNTDOWN.start();
@@ -216,7 +215,7 @@ public class CommunicationHandler implements Observer {
 						sourceDataLine.close();
 						targetDataLine.close();
 					} catch (Exception e) {
-						System.out.println(e);
+						e.printStackTrace();
 					}
 				}
 			}
@@ -309,7 +308,7 @@ public class CommunicationHandler implements Observer {
 	/** Stop communication */
 	public void stopTransmission() {
 		if (transmissionON) {
-			References.FRAME_MANAGEMENT.finishCommunicationFrame();
+			References.SERIAL_MANAGEMENT.sendFrame(References.FRAME_MANAGEMENT.finishCommunicationFrame());
 			targetDataLine.stop();
 			
 			References.COUNTDOWN.start();
