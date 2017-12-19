@@ -78,11 +78,7 @@ public class KeyListenerPanel extends JPanel {
 			if (References.SERIAL_MANAGEMENT.isConnected()) {
 				if (!keyIsDown && !clipON) {
 					keyIsDown = true;
-					if (!References.TRANSMISSION_ON) {
-						References.COMMUNICATION_HANDLER.stablishCommunication();
-					} else {
-						continueTransmission();
-					}
+					References.COMMUNICATION_HANDLER.establishCommunication();
 				} else if (clipON) {
 					JOptionPane.showConfirmDialog(window, "Stop the clip before starting a communitacion!", "Error!",
 							JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
@@ -108,23 +104,13 @@ public class KeyListenerPanel extends JPanel {
 			if (References.SERIAL_MANAGEMENT.isConnected()) {
 				if (keyIsDown) {
 					keyIsDown = false;
-					stopTransmission();
+					References.COMMUNICATION_HANDLER.stopTransmission();
 				}
 			} else {
 				JOptionPane.showConfirmDialog(window, "Unable to connect through serial port!", "Error!",
 						JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
 			}
 		}
-	}
-
-	public void stopTransmission() {
-		if (References.TRANSMISSION_ON) {
-			References.COMMUNICATION_HANDLER.receiveData();
-		}
-	}
-
-	public void continueTransmission() {
-		References.COMMUNICATION_HANDLER.sendData();
 	}
 
 	public void setClipON(boolean clipON) {

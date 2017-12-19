@@ -25,6 +25,7 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
+import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
 import javax.swing.JFrame;
@@ -39,11 +40,15 @@ import resources.Countdown;
 import resources.Reconnect;
 
 public class CommunicationHandler implements Observer {
+	/** Communication handler */
+    boolean transmissionON = false;
+	boolean receivingON = false;
+	
+	
 	/** Record data */
-	private AudioFileFormat.Type fileType = AudioFileFormat.Type.WAVE; // Audio file format
+	private AudioFileFormat.Type fileType = AudioFileFormat.Type.WAVE;
 	private AudioInputStream recordAIS;
 	private byte[] recordData;
-	// private List<Byte> recordData;
 	private InputStream recordIS;
 
 	/** Transmitted data */
@@ -53,13 +58,17 @@ public class CommunicationHandler implements Observer {
 	private AudioInputStream audioInputStream;
 	private SourceDataLine sourceDataLine;
 	private ByteArrayOutputStream byteArrayOutputStream;
-	private byte[] transmitData;
 
 	/** Received data */
-
+	private int dataIndex;
+	private int packetLength;
+	private byte[] receivedBuffer;
+	private byte[] playbuffer;
+	private boolean newPacket = false;
+	
 	/** Threads */
 	private Thread transmitThread;
-	private Thread receiveThread;
+	private Thread playThread;
 
 	/** Local */
 	private JFrame window;
@@ -85,71 +94,44 @@ public class CommunicationHandler implements Observer {
 				References.SIGNED, References.BIG_ENDIAN);
 		dataLineInfo = new DataLine.Info(TargetDataLine.class, audioFormat);
 
-		// recordData = new ArrayList<>();
+		try {
+			targetDataLine = (TargetDataLine) AudioSystem.getLine(dataLineInfo);
+			targetDataLine.open(audioFormat);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/** Start transmission data */
 	public void startTransmission() {
-		References.RECORD_PANEL.setUIStatus("transmissionON");
+		transmissionON = true;
 		References.STATUS_PANEL.setStatus(References.TRANSMITTING);
+		References.RECORD_PANEL.setUIStatus("transmissionON");
 
-		References.TRANSMISSION_ON = true;
-		try {
-			targetDataLine = (TargetDataLine) AudioSystem.getLine(dataLineInfo);
-			targetDataLine.open(audioFormat);
-			targetDataLine.start();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		targetDataLine.start();
+		
 		transmitThread = new Thread(new TransmitThread());
 		transmitThread.start();
-
-		receiveThread = new Thread(new ReceiveThread());
-		receiveThread.start();
 	}
 
 	/** Send data */
-	public void sendData() {
-		References.COUNTDOWN.stop();
-		References.STATUS_PANEL.setStatus(References.TRANSMITTING);
-		References.RECORD_PANEL.setUIStatus("transmissionON");
-		targetDataLine.start();
-	}
-
-	/** Receive data */
-	public void receiveData() {
-		References.COUNTDOWN.start();
-		References.STATUS_PANEL.setStatus(References.WAITING);		if (targetDataLine.isActive()) {
-			targetDataLine.stop();
-		}
-	}
-
-	/**
-	 * Observable: 1) COUNTDOWN: time elapsed 2) SERIAL_READER: Data received
-	 */
-	@Override
-	public void update(Observable observable, Object object) {
-		if (observable instanceof Countdown) {
-			References.COUNTDOWN.stop();
-			References.STATUS_PANEL.setStatus(References.STANDBY);
-			References.RECORD_PANEL.setUIStatus("transmissionOFF");
-			if (References.RECORD_PANEL.getRecordON()) {
-				References.RECORD_PANEL.stopRecord();
-			}
-			References.TRANSMISSION_ON = false;
-			targetDataLine.close();
-		} else if (observable instanceof SerialManagement) {
-			readReceivedFrame();
-		} else if (observable instanceof Reconnect) {
-			if (tries < References.TRIES_MAX) {
-				References.SERIAL_MANAGEMENT.sendFrame(References.FRAME_MANAGEMENT.requestCommunicationFrame());
-				tries++;
+	public void sendData(byte[] data) {
+		byte[] sendData = new byte[References.DATA_LENGTH];
+		int numberOfPackets = data.length / References.DATA_LENGTH;
+		int lastPacketLength = data.length - (numberOfPackets * References.DATA_LENGTH);
+		
+		for (int i = 0; i < data.length - lastPacketLength; i = i + References.DATA_LENGTH - 1) {
+			if(i == 0) {
+				System.arraycopy(data, i, sendData, 0, References.DATA_LENGTH);
+				References.FRAME_MANAGEMENT.startFrame(sendData);
 			} else {
-				References.RECONNECT.stop();
-				JOptionPane.showConfirmDialog(window, "Unable to connect, check communication channel", "Error!",
-						JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
+				System.arraycopy(data, i, sendData, 0, References.DATA_LENGTH);
+				References.FRAME_MANAGEMENT.betweenFrame(sendData);
 			}
 		}
+		
+		System.arraycopy(data, data.length - lastPacketLength, sendData, 0, lastPacketLength);
+		References.FRAME_MANAGEMENT.finalFrame(sendData);
 	}
 
 	public void readReceivedFrame() {
@@ -163,8 +145,12 @@ public class CommunicationHandler implements Observer {
 				switch (frame.getType()) {
 				case References.REQUEST_COMMUNICATION:
 					References.SERIAL_MANAGEMENT.sendFrame(References.FRAME_MANAGEMENT.confirmCommunicationFrame());
+					receivingON = true;
 					References.STATUS_PANEL.setStatus(References.RECEIVING);
 					References.COUNTDOWN.stop();
+					
+					playThread = new Thread(new PlayThread());
+					playThread.start();
 					break;
 
 				case References.CONFIRM:
@@ -173,27 +159,25 @@ public class CommunicationHandler implements Observer {
 					break;
 
 				case References.START_FRAME:
-					/**
-					 * 1) Meter al buffer del altavoz para reproducir 2) Meter al buffer de
-					 * grabación si se está grabando
-					 */
+					packetLength = 0;
+					dataIndex = 0;
+					receivedBuffer = new byte[References.RECEIVED_MAX_SIZE];
+					receiveData(frame.getFrame());
 					break;
 
 				case References.FRAME_IN_BETWEEN:
-					/**
-					 * 1) Meter al buffer del altavoz para reproducir 2) Meter al buffer de
-					 * grabación si se está grabando
-					 */
+					receiveData(frame.getFrame());
 					break;
 
 				case References.FINAL_FRAME:
-					/**
-					 * 1) Meter al buffer del altavoz para reproducir 2) Meter al buffer de
-					 * grabación si se está grabando
-					 */
+					receiveData(frame.getFrame());
+					System.arraycopy(receivedBuffer, 0, playbuffer, 0, packetLength);
+					newPacket = false;
 					break;
 
 				case References.FINISH_COMMUNICATION:
+					playThread.stop();
+					receivingON = false;
 					References.STATUS_PANEL.setStatus(References.WAITING);
 					References.COUNTDOWN.start();
 					break;
@@ -203,23 +187,69 @@ public class CommunicationHandler implements Observer {
 			}
 		}
 	}
+	
+	private void receiveData(byte[] data) {
+		packetLength = packetLength + data.length;
+		System.arraycopy(data, 0, receivedBuffer, dataIndex, data.length);
+		dataIndex = dataIndex + References.DATA_LENGTH - 1;
+	}
+	
+	private class PlayThread implements Runnable {
+		byte tempBuffer[] = new byte[8];
+		
+		@Override
+		public void run() {
+			while (receivingON) {
+				if(newPacket == true ) {
+					openMixer();
+					newPacket = false;
+				
+					try {
+						int cnt;
+	
+						while ((cnt = audioInputStream.read(tempBuffer, 0, tempBuffer.length)) != -1) {
+							if (cnt > 0) {
+								sourceDataLine.write(tempBuffer, 0, cnt);
+							}
+						}
+						sourceDataLine.drain();
+						sourceDataLine.close();
+						targetDataLine.close();
+					} catch (Exception e) {
+						System.out.println(e);
+					}
+				}
+			}
+		}
+		
+		public void openMixer() {
+			InputStream byteArrayInputStream = new ByteArrayInputStream(playbuffer);		
+			audioInputStream = new AudioInputStream(byteArrayInputStream, audioFormat, playbuffer.length / audioFormat.getFrameSize());
+			DataLine.Info dataLineInfo = new DataLine.Info(SourceDataLine.class, audioFormat);
+
+			try {
+				sourceDataLine = (SourceDataLine) AudioSystem.getLine(dataLineInfo);
+				sourceDataLine.open(audioFormat);
+				sourceDataLine.start();
+			} catch (LineUnavailableException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 
 	/** Transmit Thread to send data */
 	private class TransmitThread implements Runnable {
-		byte tempBuffer[] = new byte[10000];
+		byte tempBuffer[] = new byte[References.PACKET_SIZE];
 
 		@Override
 		public void run() {
 			byteArrayOutputStream = new ByteArrayOutputStream();
 			try {
-				/**
-				 * Es posible que necesite otro while mirando si se está transmitiendo o no, por
-				 * el targetDataLine.stop()
-				 */
 				while (References.KEYLISTENER_PANEL.isKeyIsDown()) {
-					int cnt = targetDataLine.read(tempBuffer, 0, tempBuffer.length);
+					int cnt = targetDataLine.read(tempBuffer, 0, References.PACKET_SIZE);
 					if (cnt > 0) {
 						byteArrayOutputStream.write(tempBuffer, 0, cnt);
+						sendData(byteArrayOutputStream.toByteArray());
 					}
 				}
 				byteArrayOutputStream.close();
@@ -227,16 +257,6 @@ public class CommunicationHandler implements Observer {
 				e.printStackTrace();
 			}
 		}
-	}
-
-	/** Receive Thread to send data */
-	private class ReceiveThread implements Runnable {
-
-		@Override
-		public void run() {
-			// TODO Auto-generated method stub
-		}
-
 	}
 
 	/** Start recoding */
@@ -258,13 +278,7 @@ public class CommunicationHandler implements Observer {
 			References.RECORD_PANEL.getRecordModel().addElement(newRecord);
 			References.RECORD_PANEL.setUIStatus("stop");
 			References.CHRONOMETER.stop();
-			/*
-			 * byte data[];
-			 * 
-			 * data = byteArrayOutputStream.toByteArray();
-			 * 
-			 * for (int i = 0; i < data.length; i++) { recordData.add(data[i]); }
-			 */
+
 			recordData = byteArrayOutputStream.toByteArray();
 			recordIS = new ByteArrayInputStream(recordData);
 			recordAIS = new AudioInputStream(recordIS, audioFormat, recordData.length / audioFormat.getFrameSize());
@@ -275,7 +289,7 @@ public class CommunicationHandler implements Observer {
 				e.printStackTrace();
 			}
 		} else {
-			if (References.TRANSMISSION_ON) {
+			if (transmissionON) {
 				References.RECORD_PANEL.setUIStatus("transmissionON");
 			}
 		}
@@ -287,9 +301,47 @@ public class CommunicationHandler implements Observer {
 	}
 
 	/** Establish communication */
-	public void stablishCommunication() {
+	public void establishCommunication() {
 		tries = 0;
-
 		References.RECONNECT.start();
+	}
+
+	/** Stop communication */
+	public void stopTransmission() {
+		if (transmissionON) {
+			References.FRAME_MANAGEMENT.finishCommunicationFrame();
+			targetDataLine.stop();
+			
+			References.COUNTDOWN.start();
+			References.STATUS_PANEL.setStatus(References.WAITING);
+			if (targetDataLine.isActive()) {
+				targetDataLine.stop();
+			}
+		}
+	}
+	
+	/** Observable */
+	@Override
+	public void update(Observable observable, Object object) {
+		if (observable instanceof Countdown) {
+			References.COUNTDOWN.stop();
+			References.STATUS_PANEL.setStatus(References.STANDBY);
+			References.RECORD_PANEL.setUIStatus("transmissionOFF");
+			if (References.RECORD_PANEL.getRecordON()) {
+				References.RECORD_PANEL.stopRecord();
+			}
+			transmissionON = false;
+		} else if (observable instanceof SerialManagement) {
+			readReceivedFrame();
+		} else if (observable instanceof Reconnect) {
+			if (tries < References.TRIES_MAX) {
+				References.SERIAL_MANAGEMENT.sendFrame(References.FRAME_MANAGEMENT.requestCommunicationFrame());
+				tries++;
+			} else {
+				References.RECONNECT.stop();
+				JOptionPane.showConfirmDialog(window, "Unable to connect, check communication channel", "Error!",
+						JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
+			}
+		}
 	}
 }

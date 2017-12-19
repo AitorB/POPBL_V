@@ -293,7 +293,6 @@ public class RecordPanel extends JPanel implements ActionListener, ListSelection
 			if (!recordON) {
 				startRecord();
 			} else {
-				References.KEYLISTENER_PANEL.stopTransmission();
 				stopRecord();
 			}
 		}

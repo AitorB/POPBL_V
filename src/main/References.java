@@ -77,7 +77,6 @@ public final class References {
 	public static final String RECORD_PATH = "data\\records.dat";
 
 	/** Communication handler parameters */
-	public static boolean TRANSMISSION_ON = false;
 	public static final int COUNTDOWN_SEC = 10;
 	public static final int RECONNECT_MILLISEC = 250;
 	public static final int TRIES_MAX = 4;
@@ -92,6 +91,7 @@ public final class References {
 	/** Serial parameters */
 	public static final int BAUDRATE = 9600;
 	public static final int RECEIVED_MAX_SIZE = 1024;
+	public static final int PACKET_SIZE = 640;
 
 	/** Frame data types */
 	public static final int REQUEST_COMMUNICATION = 0;
@@ -115,5 +115,4 @@ public final class References {
 	public static final int HEADER_LENGTH = PREAMBLE_LENGTH + TYPE_ID_LENGTH + DATAlENGTH_LENGTH;
 	public static final int DATA_LENGTH = 32;
 	public static final int CHECKSUM_LENGTH = 1;
-
 }
