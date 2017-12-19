@@ -91,9 +91,8 @@ public class CommunicationHandler implements Observer {
 
 	/** Start transmission data */
 	public void startTransmission() {
-		References.COUNTDOWN.stop();
-		References.RECORD_PANEL.setSystemStatus("transmissionON");
-		References.STATUS_PANEL.setStatus("transmitting");
+		References.RECORD_PANEL.setUIStatus("transmissionON");
+		References.STATUS_PANEL.setStatus(References.TRANSMITTING);
 
 		References.TRANSMISSION_ON = true;
 		try {
@@ -113,15 +112,15 @@ public class CommunicationHandler implements Observer {
 	/** Send data */
 	public void sendData() {
 		References.COUNTDOWN.stop();
-		References.STATUS_PANEL.setStatus("transmitting");
-		References.RECORD_PANEL.setSystemStatus("transmissionON");
+		References.STATUS_PANEL.setStatus(References.TRANSMITTING);
+		References.RECORD_PANEL.setUIStatus("transmissionON");
 		targetDataLine.start();
 	}
 
 	/** Receive data */
 	public void receiveData() {
 		References.COUNTDOWN.start();
-		References.STATUS_PANEL.setStatus("waitting");
+		References.STATUS_PANEL.setStatus(References.WAITING);
 		if (targetDataLine.isActive()) {
 			targetDataLine.stop();
 		}
@@ -134,8 +133,8 @@ public class CommunicationHandler implements Observer {
 	public void update(Observable observable, Object object) {
 		if (observable instanceof Countdown) {
 			References.COUNTDOWN.stop();
-			References.STATUS_PANEL.setStatus("standBy");
-			References.RECORD_PANEL.setSystemStatus("transmissionOFF");
+			References.STATUS_PANEL.setStatus(References.STANDBY);
+			References.RECORD_PANEL.setUIStatus("transmissionOFF");
 			if (References.RECORD_PANEL.getRecordON()) {
 				References.RECORD_PANEL.stopRecord();
 			}
@@ -166,14 +165,16 @@ public class CommunicationHandler implements Observer {
 				switch (frame.getType()) {
 				case References.REQUEST_COMMUNICATION:
 					References.SERIAL_MANAGEMENT.sendFrame(References.FRAME_MANAGEMENT.confirmCommunicationFrame());
+					References.STATUS_PANEL.setStatus(References.RECEIVING);
+					References.COUNTDOWN.stop();
 					break;
 
 				case References.CONFIRM:
-					References.KEYLISTENER_PANEL.startTransmission();
+					References.RECONNECT.stop();
+					startTransmission();
 					break;
 
 				case References.START_FRAME:
-					References.STATUS_PANEL.setStatus("receiving");
 					/** 
 					 * 1) Meter al buffer del altavoz para reproducir
 					 * 2) Meter al buffer de grabación si se está grabando
@@ -195,7 +196,8 @@ public class CommunicationHandler implements Observer {
 					break;
 
 				case References.FINISH_COMMUNICATION:
-					References.STATUS_PANEL.setStatus("waiting");
+					References.STATUS_PANEL.setStatus(References.WAITING);
+					References.COUNTDOWN.start();
 					break;
 				}
 
@@ -256,7 +258,7 @@ public class CommunicationHandler implements Observer {
 			Record newRecord = new Record(dialog.getName(), References.CHRONOMETER.getMinute(),
 					References.CHRONOMETER.getSecond(), References.CHRONOMETER.getHundredths());
 			References.RECORD_PANEL.getRecordModel().addElement(newRecord);
-			References.RECORD_PANEL.setSystemStatus("stop");
+			References.RECORD_PANEL.setUIStatus("stop");
 			References.CHRONOMETER.stop();
 			/*
 			 * byte data[];
@@ -276,7 +278,7 @@ public class CommunicationHandler implements Observer {
 			}
 		} else {
 			if (References.TRANSMISSION_ON) {
-				References.RECORD_PANEL.setSystemStatus("transmissionON");
+				References.RECORD_PANEL.setUIStatus("transmissionON");
 			}
 		}
 

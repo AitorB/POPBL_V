@@ -117,11 +117,6 @@ public class KeyListenerPanel extends JPanel {
 		}
 	}
 
-	public void startTransmission() {
-		References.RECONNECT.stop();
-		References.COMMUNICATION_HANDLER.startTransmission();
-	}
-
 	public void stopTransmission() {
 		if (References.TRANSMISSION_ON) {
 			References.COMMUNICATION_HANDLER.receiveData();

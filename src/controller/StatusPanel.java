@@ -67,7 +67,7 @@ public class StatusPanel extends JPanel {
 		JPanel panel = new JPanel(new FlowLayout());
 		panel.setBorder(BorderFactory.createEtchedBorder());
 
-		statusText = new JLabel("STAND BY");
+		statusText = new JLabel(References.STANDBY_TEXT);
 		statusText.setHorizontalAlignment(JLabel.CENTER);
 		statusText.setFont(new Font("Arial", Font.BOLD, 50));
 		statusText.setPreferredSize(new Dimension(600, 60));
@@ -79,22 +79,22 @@ public class StatusPanel extends JPanel {
 
 	public void setStatus(String status) {
 		switch (status) {
-		case "standBy":
+		case References.STANDBY:
 			statusImage.setIcon(new ImageIcon(References.STANDBY_IMAGE));
 			statusText.setText(References.STANDBY_TEXT);
 			break;
 			
-		case "transmitting":
+		case References.TRANSMITTING:
 			statusImage.setIcon(new ImageIcon(References.TRANSMITTING_IMAGE));
 			statusText.setText(References.TRANSMITTING_TEXT);
 			break;
 
-		case "waiting":
-			statusImage.setIcon(new ImageIcon(References.WAITTING_IMAGE));
-			statusText.setText(References.WAITTING_TEXT);
+		case References.WAITING:
+			statusImage.setIcon(new ImageIcon(References.WAITING_IMAGE));
+			statusText.setText(References.WAITING_TEXT);
 			break;
 			
-		case "receiving":
+		case References.RECEIVING:
 			statusImage.setIcon(new ImageIcon(References.RECEIVING_IMAGE));
 			statusText.setText(References.RECEIVING_TEXT);
 			break;

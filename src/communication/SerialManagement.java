@@ -35,7 +35,7 @@ public class SerialManagement implements Observable {
 	private Thread readThread;
 
 	/** Send & receive parameters */
-	private static List<Frame> receiveBuffer;
+	private List<Frame> receiveBuffer;
 	private static int sendId = 0;
 
 	/** Input and Output streams */
@@ -43,11 +43,11 @@ public class SerialManagement implements Observable {
 	private OutputStream outputStream;
 
 	/** Booleans */
-	private static boolean connected = false;
+	private boolean connected = false;
 
 	/** Constructor */
 	public SerialManagement() {
-
+		this.receiveBuffer = new ArrayList<>();
 		this.openPort();
 	}
 
@@ -58,7 +58,7 @@ public class SerialManagement implements Observable {
 			try {
 				connect(portName);
 				System.out.println("Connected to port: " + portName);
-				connected = true;
+				this.connected = true;
 			} catch (Exception e) {
 				// System.out.println("Error opening the port: " + portName);
 			}
@@ -153,7 +153,6 @@ public class SerialManagement implements Observable {
 					References.SERIAL_MANAGEMENT.addReceivedBuffer(receivedFrame);
 				}
 			}
-
 			dataBuffer.clear();
 
 			for (int i = 0; i < sizeDividedPacket; i++) {

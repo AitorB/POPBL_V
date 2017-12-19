@@ -54,15 +54,21 @@ public final class References {
 	public static final String STOPREC_IMAGE = "image\\stopRec.png";
 	public static final String STANDBY_IMAGE = "image\\yellow.png";
 	public static final String TRANSMITTING_IMAGE = "image\\green.png";
-	public static final String WAITTING_IMAGE = "image\\blue.png";
+	public static final String WAITING_IMAGE = "image\\blue.png";
 	public static final String RECEIVING_IMAGE = "image\\red.png";
 
-	/** Record status handler */
+	/** Text */
 	public static final String STANDBY_TEXT = "STANDBY";
 	public static final String TRANSMITTING_TEXT = "TRANSMITTING";
-	public static final String WAITTING_TEXT = "WAITTING";
+	public static final String WAITING_TEXT = "WAITING";
 	public static final String RECEIVING_TEXT = "RECEIVING";
-
+	
+	/** Record status handler */
+	public static final String STANDBY = "standby";
+	public static final String TRANSMITTING = "transmitting";
+	public static final String WAITING = "waiting";
+	public static final String RECEIVING = "receiving";
+		
 	/** Clip handler */
 	public static final String START = "START";
 	public static final String STOP = "STOP";
@@ -70,11 +76,11 @@ public final class References {
 	/** Record data storage */
 	public static final String RECORD_PATH = "data\\records.dat";
 
-	/** Communication terminate parameters */
+	/** Communication handler parameters */
+	public static boolean TRANSMISSION_ON = false;
 	public static final int COUNTDOWN_SEC = 10;
 	public static final int RECONNECT_MILLISEC = 250;
 	public static final int TRIES_MAX = 4;
-	public static boolean TRANSMISSION_ON = false;
 
 	/** Audio sampling values */
 	public static final float SAMPLE_RATE = 8000.0F; // Samples per second: 8000, 11025, 16000, 22050, 44100

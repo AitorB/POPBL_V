@@ -47,7 +47,7 @@ public class ClipPlayer implements LineListener {
 				e.printStackTrace();
 				JOptionPane.showConfirmDialog(window, "Failed to load audio clip!", "Error", JOptionPane.CLOSED_OPTION,
 						JOptionPane.ERROR_MESSAGE);
-				References.RECORD_PANEL.setSystemStatus("stop");
+				References.RECORD_PANEL.setUIStatus("stop");
 			}
 		} else {
 			pause();
@@ -75,7 +75,7 @@ public class ClipPlayer implements LineListener {
 			lastFrame = 0;
 			clip.stop();
 			clip = null;
-			References.RECORD_PANEL.setSystemStatus("stop");
+			References.RECORD_PANEL.setUIStatus("stop");
 			References.KEYLISTENER_PANEL.setClipON(false);
 			References.CHRONOMETER.stop();
 			if (!References.RECORD_PANEL.getRecordModel().isEmpty()) {

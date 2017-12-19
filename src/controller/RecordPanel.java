@@ -211,7 +211,7 @@ public class RecordPanel extends JPanel implements ActionListener, ListSelection
 		}
 	}
 
-	public void setSystemStatus(String status) {
+	public void setUIStatus(String status) {
 		switch (status) {
 		case "play":
 			play.setEnabled(false);
@@ -264,15 +264,15 @@ public class RecordPanel extends JPanel implements ActionListener, ListSelection
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand().equals("play")) {
-			setSystemStatus("play");
+			setUIStatus("play");
 			References.CLIP_PLAYER.play();
 
 		} else if (e.getActionCommand().equals("pause")) {
-			setSystemStatus("pause");
+			setUIStatus("pause");
 			References.CLIP_PLAYER.pause();
 
 		} else if (e.getActionCommand().equals("stop")) {
-			setSystemStatus("stop");
+			setUIStatus("stop");
 			References.CLIP_PLAYER.stop();
 
 		} else if (e.getActionCommand().equals("delete")) {
@@ -286,7 +286,7 @@ public class RecordPanel extends JPanel implements ActionListener, ListSelection
 					ex.printStackTrace();
 				}
 				recordModel.removeElement(recordJList.getSelectedValue());
-				setSystemStatus("delete");
+				setUIStatus("delete");
 				recordJList.setSelectedIndex(recordModel.size() - 1);
 			}
 		} else if (e.getActionCommand().equals("record")) {
@@ -335,7 +335,7 @@ public class RecordPanel extends JPanel implements ActionListener, ListSelection
 		References.CHRONOMETER.pause();
 		recordON = false;
 		record.setIcon(new ImageIcon(References.STARTREC_IMAGE));
-		setSystemStatus("transmissionOFF");
+		setUIStatus("transmissionOFF");
 		References.COMMUNICATION_HANDLER.stopRecord();
 		recordJList.setSelectedIndex(recordModel.size() - 1);
 	}
