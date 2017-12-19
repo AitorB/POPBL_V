@@ -73,9 +73,8 @@ public class CommunicationHandler implements Observer {
 
 		References.RECONNECT = new Reconnect(References.RECONNECT_MILLISEC);
 		References.RECONNECT.addObserver(this);
-		
+
 		References.SERIAL_MANAGEMENT.addObserver(this);
-		
 
 		initializeMixer();
 	}
@@ -160,8 +159,8 @@ public class CommunicationHandler implements Observer {
 
 		while (iterator.hasNext()) {
 			Frame frame = iterator.next();
-			
-			if(References.FRAME_MANAGEMENT.validateFrame(frame)) {
+
+			if (References.FRAME_MANAGEMENT.validateFrame(frame)) {
 				switch (frame.getType()) {
 				case References.REQUEST_COMMUNICATION:
 					References.SERIAL_MANAGEMENT.sendFrame(References.FRAME_MANAGEMENT.confirmCommunicationFrame());
@@ -175,24 +174,24 @@ public class CommunicationHandler implements Observer {
 					break;
 
 				case References.START_FRAME:
-					/** 
-					 * 1) Meter al buffer del altavoz para reproducir
-					 * 2) Meter al buffer de grabación si se está grabando
-					 * */ 
+					/**
+					 * 1) Meter al buffer del altavoz para reproducir 2) Meter al buffer de
+					 * grabación si se está grabando
+					 */
 					break;
 
 				case References.FRAME_IN_BETWEEN:
-					/** 
-					 * 1) Meter al buffer del altavoz para reproducir
-					 * 2) Meter al buffer de grabación si se está grabando
-					 * */
+					/**
+					 * 1) Meter al buffer del altavoz para reproducir 2) Meter al buffer de
+					 * grabación si se está grabando
+					 */
 					break;
 
 				case References.FINAL_FRAME:
-					/** 
-					 * 1) Meter al buffer del altavoz para reproducir
-					 * 2) Meter al buffer de grabación si se está grabando
-					 * */
+					/**
+					 * 1) Meter al buffer del altavoz para reproducir 2) Meter al buffer de
+					 * grabación si se está grabando
+					 */
 					break;
 
 				case References.FINISH_COMMUNICATION:
@@ -202,10 +201,10 @@ public class CommunicationHandler implements Observer {
 				}
 
 				iterator.remove();
-			} 
+			}
 		}
 	}
-	
+
 	/** Transmit Thread to send data */
 	private class TransmitThread implements Runnable {
 		byte tempBuffer[] = new byte[10000];
@@ -291,7 +290,7 @@ public class CommunicationHandler implements Observer {
 	/** Establish communication */
 	public void stablishCommunication() {
 		tries = 0;
-		
+
 		References.RECONNECT.start();
 	}
 }

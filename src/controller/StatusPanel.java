@@ -83,7 +83,7 @@ public class StatusPanel extends JPanel {
 			statusImage.setIcon(new ImageIcon(References.STANDBY_IMAGE));
 			statusText.setText(References.STANDBY_TEXT);
 			break;
-			
+
 		case References.TRANSMITTING:
 			statusImage.setIcon(new ImageIcon(References.TRANSMITTING_IMAGE));
 			statusText.setText(References.TRANSMITTING_TEXT);
@@ -93,7 +93,7 @@ public class StatusPanel extends JPanel {
 			statusImage.setIcon(new ImageIcon(References.WAITING_IMAGE));
 			statusText.setText(References.WAITING_TEXT);
 			break;
-			
+
 		case References.RECEIVING:
 			statusImage.setIcon(new ImageIcon(References.RECEIVING_IMAGE));
 			statusText.setText(References.RECEIVING_TEXT);

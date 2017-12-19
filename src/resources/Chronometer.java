@@ -102,7 +102,7 @@ public class Chronometer extends JPanel {
 		seconds = 0;
 		hundredths = 0;
 		setText();
-		
+
 		paused = false;
 		timerSecond.stop();
 		timerHundredth.stop();

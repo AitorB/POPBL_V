@@ -47,7 +47,7 @@ public class Reconnect implements ActionListener, Observable {
 		cont++;
 		this.notifyObservers();
 	}
-	
+
 	public int getTries() {
 		return cont;
 	}

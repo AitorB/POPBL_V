@@ -62,13 +62,13 @@ public final class References {
 	public static final String TRANSMITTING_TEXT = "TRANSMITTING";
 	public static final String WAITING_TEXT = "WAITING";
 	public static final String RECEIVING_TEXT = "RECEIVING";
-	
+
 	/** Record status handler */
 	public static final String STANDBY = "standby";
 	public static final String TRANSMITTING = "transmitting";
 	public static final String WAITING = "waiting";
 	public static final String RECEIVING = "receiving";
-		
+
 	/** Clip handler */
 	public static final String START = "START";
 	public static final String STOP = "STOP";

@@ -305,8 +305,8 @@ public class RecordPanel extends JPanel implements ActionListener, ListSelection
 			JList<?> list = (JList<?>) e.getSource();
 			if (!list.isSelectionEmpty()) {
 				selectedRecord = (Record) list.getSelectedValue();
-				References.CHRONOMETER.setChronometerValue(String.format("%02d : %02d . %02d", selectedRecord.getMinutes(),
-						selectedRecord.getSeconds(), selectedRecord.getHundreths()));
+				References.CHRONOMETER.setChronometerValue(String.format("%02d : %02d . %02d",
+						selectedRecord.getMinutes(), selectedRecord.getSeconds(), selectedRecord.getHundreths()));
 			} else {
 				References.CHRONOMETER.setChronometerValue("00 : 00 . 00");
 			}

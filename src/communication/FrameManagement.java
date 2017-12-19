@@ -82,7 +82,7 @@ public class FrameManagement {
 			sendId++;
 		}
 	}
-	
+
 	public boolean validateFrame(Frame frame) {
 		boolean valid = false;
 

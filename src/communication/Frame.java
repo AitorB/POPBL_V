@@ -63,9 +63,9 @@ public class Frame {
 
 	public byte generateChecksum() {
 		byte code;
-		
+
 		code = 0x00;
-		
+
 		return code;
 	}
 
@@ -84,20 +84,20 @@ public class Frame {
 
 		return header;
 	}
-	
+
 	/** Constructor: Receive data frame */
 	public Frame(byte[] frame) {
 		this.preamble = Arrays.copyOfRange(frame, 0, 1);
 		this.type = frame[2] >> 4;
-		this.id = 0x07 & frame[2]; 
+		this.id = 0x07 & frame[2];
 		this.typeId = frame[2];
 		this.dataLength = frame[3];
 		this.data = Arrays.copyOfRange(frame, 4, 35);
 		this.checksum = frame[36];
-		
+
 		this.frame = frame;
 	}
-	
+
 	/** Getters */
 	public byte[] getPreamble() {
 		return this.preamble;
@@ -106,11 +106,11 @@ public class Frame {
 	public int getType() {
 		return this.type;
 	}
-	
+
 	public int getId() {
 		return this.id;
 	}
-	
+
 	public byte getTypeId() {
 		return this.typeId;
 	}

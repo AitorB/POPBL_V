@@ -47,7 +47,7 @@ public class Record implements Serializable {
 	public int getSeconds() {
 		return this.seconds;
 	}
-	
+
 	public int getHundreths() {
 		return this.hundredths;
 	}
