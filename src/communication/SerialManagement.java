@@ -31,12 +31,10 @@ public class SerialManagement implements Observable {
 	private Observer observer;
 
 	/** Threads */
-	private Thread writeThread;
 	private Thread readThread;
 
 	/** Send & receive parameters */
 	private List<Frame> receiveBuffer;
-	private static int sendId = 0;
 
 	/** Input and Output streams */
 	private InputStream inputStream;
@@ -163,44 +161,14 @@ public class SerialManagement implements Observable {
 		}
 	}
 
-	/** Thread methods: write thread */
-	private static class SerialWriter implements Runnable {
-		/** To send data in serial port */
-		private OutputStream outputStream;
-
-		/** Data received management */
-		private Frame sendFrame;
-		private int currentPacketID = 0;
-
-		/** Constructor */
-		public SerialWriter(OutputStream outputStream, Frame frame) {
-			this.outputStream = outputStream;
-			this.sendFrame = frame;
-			this.currentPacketID = frame.getId();
-		}
-
-		public void run() {
-			try {
-				while (currentPacketID != sendId) {
-				}
-				this.outputStream.write(sendFrame.getFrame());
-				this.outputStream.flush();
-
-				if (sendId == 15) {
-					sendId = 0;
-				} else {
-					sendId++;
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
 	/** Method to send a Frame */
 	public void sendFrame(Frame frame) {
-		writeThread = new Thread(new SerialWriter(outputStream, frame));
-		writeThread.start();
+		try {
+			this.outputStream.write(frame.getFrame());
+			this.outputStream.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void addReceivedBuffer(Frame frame) {
