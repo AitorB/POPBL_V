@@ -21,14 +21,13 @@ public class FrameManagement {
 	private int currentId;
 
 	public FrameManagement() {
-		sendId = 0;
-		lastId = 0;
-		currentId = 0;
 	}
 
 	/** Request of communication frame */
 	public Frame requestCommunicationFrame() {
 		byte[] empty = new byte[References.DATA_LENGTH];
+
+		sendId = 0;
 
 		return new Frame(References.REQUEST_COMMUNICATION, sendId, empty);
 	}
@@ -36,6 +35,8 @@ public class FrameManagement {
 	/** Confirmation to start communication frame */
 	public Frame confirmCommunicationFrame() {
 		byte[] empty = new byte[References.DATA_LENGTH];
+
+		sendId = 0;
 
 		return new Frame(References.CONFIRM, sendId, empty);
 	}
@@ -86,7 +87,7 @@ public class FrameManagement {
 
 		return frame;
 	}
-	
+
 	/** Generates next send ID */
 	private void generateSendId() {
 		if (sendId == 15) {

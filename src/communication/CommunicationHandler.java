@@ -204,7 +204,7 @@ public class CommunicationHandler implements Observer {
 	private void receiveData(byte[] data) {
 		packetLength = packetLength + data.length;
 		System.arraycopy(data, 0, receivedBuffer, dataIndex, data.length);
-		dataIndex = dataIndex + References.DATA_LENGTH;
+		dataIndex = dataIndex + data.length;
 	}
 	
 	private class PlayThread implements Runnable {
