@@ -128,21 +128,21 @@ public class CommunicationHandler implements Observer {
 		for (int i = 0; i < index; i = i + References.DATA_LENGTH) {
 			if(i == 0) {
 				System.arraycopy(data, i, sendData, 0, References.DATA_LENGTH);
-				References.FRAME_MANAGEMENT.startFrame(sendData);
+				References.SERIAL_MANAGEMENT.sendFrame(References.FRAME_MANAGEMENT.startFrame(sendData));
 			} else {
 				System.arraycopy(data, i, sendData, 0, References.DATA_LENGTH);
-				References.FRAME_MANAGEMENT.betweenFrame(sendData);
+				References.SERIAL_MANAGEMENT.sendFrame(References.FRAME_MANAGEMENT.betweenFrame(sendData));
 			}
 		}
 		
 		if(lastPacketLength != 0) {
 			sendData = new byte[lastPacketLength];
 			System.arraycopy(data, data.length - lastPacketLength, sendData, 0, lastPacketLength);
-			References.FRAME_MANAGEMENT.finalFrame(sendData);
+			References.SERIAL_MANAGEMENT.sendFrame(References.FRAME_MANAGEMENT.finalFrame(sendData));
 		} else {
 			sendData = new byte[References.DATA_LENGTH];
 			System.arraycopy(data, data.length - References.DATA_LENGTH, sendData, 0, References.DATA_LENGTH);
-			References.FRAME_MANAGEMENT.finalFrame(sendData);
+			References.SERIAL_MANAGEMENT.sendFrame(References.FRAME_MANAGEMENT.finalFrame(sendData));
 		}
 	}
 
@@ -161,6 +161,8 @@ public class CommunicationHandler implements Observer {
 					References.STATUS_PANEL.setStatus(References.RECEIVING);
 					References.COUNTDOWN.stop();
 					
+					receivedBuffer = new byte[References.RECEIVED_MAX_SIZE];
+					
 					playThread = new Thread(new PlayThread());
 					playThread.start();
 					break;
@@ -173,7 +175,6 @@ public class CommunicationHandler implements Observer {
 				case References.START_FRAME:
 					packetLength = 0;
 					dataIndex = 0;
-					receivedBuffer = new byte[References.RECEIVED_MAX_SIZE];
 					receiveData(frame.getFrame());
 					break;
 

@@ -71,7 +71,7 @@ public class Frame {
 
 	private void generateFrame() {
 		System.arraycopy(generateHeader(), 0, frame, 0, References.HEADER_LENGTH);
-		System.arraycopy(data, 0, frame, References.HEADER_LENGTH, References.DATA_LENGTH);
+		System.arraycopy(data, 0, frame, References.HEADER_LENGTH, dataLength);
 		frame[References.HEADER_LENGTH + References.DATA_LENGTH] = checksum;
 	}
 
@@ -92,7 +92,7 @@ public class Frame {
 		this.id = 0x07 & frame[2];
 		this.typeId = frame[2];
 		this.dataLength = frame[3];
-		this.data = Arrays.copyOfRange(frame, 4, 35);
+		this.data = Arrays.copyOfRange(frame, 4, dataLength);
 		this.checksum = frame[36];
 
 		this.frame = frame;
