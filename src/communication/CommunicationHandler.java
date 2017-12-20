@@ -119,8 +119,13 @@ public class CommunicationHandler implements Observer {
 		byte[] sendData = new byte[References.DATA_LENGTH];
 		int numberOfPackets = data.length / References.DATA_LENGTH;
 		int lastPacketLength = data.length - (numberOfPackets * References.DATA_LENGTH);
+		int index = data.length - lastPacketLength;
 		
-		for (int i = 0; i < data.length - lastPacketLength; i = i + References.DATA_LENGTH) {
+		if(lastPacketLength == 0) {
+			index = index - References.DATA_LENGTH;
+		}
+		
+		for (int i = 0; i < index; i = i + References.DATA_LENGTH) {
 			if(i == 0) {
 				System.arraycopy(data, i, sendData, 0, References.DATA_LENGTH);
 				References.FRAME_MANAGEMENT.startFrame(sendData);
@@ -130,8 +135,15 @@ public class CommunicationHandler implements Observer {
 			}
 		}
 		
-		System.arraycopy(data, data.length - lastPacketLength, sendData, 0, lastPacketLength);
-		References.FRAME_MANAGEMENT.finalFrame(sendData);
+		if(lastPacketLength != 0) {
+			sendData = new byte[lastPacketLength];
+			System.arraycopy(data, data.length - lastPacketLength, sendData, 0, lastPacketLength);
+			References.FRAME_MANAGEMENT.finalFrame(sendData);
+		} else {
+			sendData = new byte[References.DATA_LENGTH];
+			System.arraycopy(data, data.length - References.DATA_LENGTH, sendData, 0, References.DATA_LENGTH);
+			References.FRAME_MANAGEMENT.finalFrame(sendData);
+		}
 	}
 
 	public void readReceivedFrame() {
@@ -171,6 +183,7 @@ public class CommunicationHandler implements Observer {
 
 				case References.FINAL_FRAME:
 					receiveData(frame.getFrame());
+					playbuffer = new byte[packetLength];
 					System.arraycopy(receivedBuffer, 0, playbuffer, 0, packetLength);
 					newPacket = false;
 					break;
@@ -190,7 +203,7 @@ public class CommunicationHandler implements Observer {
 	private void receiveData(byte[] data) {
 		packetLength = packetLength + data.length;
 		System.arraycopy(data, 0, receivedBuffer, dataIndex, data.length);
-		dataIndex = dataIndex + References.DATA_LENGTH - 1;
+		dataIndex = dataIndex + References.DATA_LENGTH;
 	}
 	
 	private class PlayThread implements Runnable {

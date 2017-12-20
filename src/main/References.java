@@ -100,7 +100,8 @@ public final class References {
 	public static final int FRAME_IN_BETWEEN = 3;
 	public static final int FINAL_FRAME = 4;
 	public static final int FINISH_COMMUNICATION = 5;
-
+	public static final int REJECT = 6;
+	
 	/** Synchronizations symbols */
 	public static final byte QAM_S0 = 0;
 	public static final byte QAM_S2 = 2;

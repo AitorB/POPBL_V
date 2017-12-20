@@ -74,6 +74,19 @@ public class FrameManagement {
 		return frame;
 	}
 
+	/** Reject frame of communication */
+	public Frame RejectCommunicationFrame() {
+		byte[] empty = new byte[References.DATA_LENGTH];
+
+		generateSendId();
+
+		Frame frame = new Frame(References.REJECT, sendId, empty);
+
+		sendId = 0;
+
+		return frame;
+	}
+	
 	/** Generates next send ID */
 	private void generateSendId() {
 		if (sendId == 15) {
