@@ -44,7 +44,6 @@ public class CommunicationHandler implements Observer {
     boolean transmissionON = false;
 	boolean receivingON = false;
 	
-	
 	/** Record data */
 	private AudioFileFormat.Type fileType = AudioFileFormat.Type.WAVE;
 	private AudioInputStream recordAIS;
@@ -110,6 +109,8 @@ public class CommunicationHandler implements Observer {
 
 		targetDataLine.start();
 		
+		References.SERIAL_MANAGEMENT.startTransmission();
+		
 		transmitThread = new Thread(new TransmitThread());
 		transmitThread.start();
 	}
@@ -156,8 +157,8 @@ public class CommunicationHandler implements Observer {
 			if (References.FRAME_MANAGEMENT.validateFrame(frame)) {
 				switch (frame.getType()) {
 				case References.REQUEST_COMMUNICATION:
-					References.SERIAL_MANAGEMENT.sendFrame(References.FRAME_MANAGEMENT.confirmCommunicationFrame());
 					receivingON = true;
+					References.SERIAL_MANAGEMENT.sendFrame(References.FRAME_MANAGEMENT.confirmCommunicationFrame());
 					References.STATUS_PANEL.setStatus(References.RECEIVING);
 					References.COUNTDOWN.stop();
 					
@@ -169,7 +170,6 @@ public class CommunicationHandler implements Observer {
 
 				case References.CONFIRM:
 					References.RECONNECT.stop();
-					startTransmission();
 					break;
 
 				case References.START_FRAME:
@@ -316,6 +316,7 @@ public class CommunicationHandler implements Observer {
 	/** Establish communication */
 	public void establishCommunication() {
 		tries = 0;
+		References.SERIAL_MANAGEMENT.startTransmission();
 		References.RECONNECT.start();
 	}
 

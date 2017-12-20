@@ -37,10 +37,11 @@ public class SerialManagement implements Observable {
 	/** Send & receive parameters */
 	private List<Frame> receiveBuffer;
 	private static int sendId = 0;
+	private static Frame sendFrame;
 
 	/** Input and Output streams */
 	private InputStream inputStream;
-	private OutputStream outputStream;
+	private static OutputStream outputStream;
 
 	/** Booleans */
 	private boolean connected = false;
@@ -164,27 +165,21 @@ public class SerialManagement implements Observable {
 	}
 
 	/** Thread methods: write thread */
-	private static class SerialWriter implements Runnable {
-		/** To send data in serial port */
-		private OutputStream outputStream;
-
-		/** Data received management */
-		private Frame sendFrame;
-		private int currentPacketID = 0;
-
-		/** Constructor */
-		public SerialWriter(OutputStream outputStream, Frame frame) {
-			this.outputStream = outputStream;
-			this.sendFrame = frame;
-			this.currentPacketID = frame.getId();
+	private static class SerialWriter implements Runnable, Observer {
+		public SerialWriter() {
+			References.SERIAL_MANAGEMENT.addObserver(this);
 		}
 
 		public void run() {
+			while (References.KEYLISTENER_PANEL.isKeyIsDown()) {
+			}
+		}
+
+		@Override
+		public void update(Observable observable, Object object) {
 			try {
-				while (currentPacketID != sendId) {
-				}
-				this.outputStream.write(sendFrame.getFrame());
-				this.outputStream.flush();
+				outputStream.write(sendFrame.getFrame());
+				outputStream.flush();
 
 				if (sendId == 15) {
 					sendId = 0;
@@ -197,10 +192,17 @@ public class SerialManagement implements Observable {
 		}
 	}
 
+	public void startTransmission() {
+		if(!writeThread.isAlive()) {
+			writeThread = new Thread(new SerialWriter());
+			writeThread.start();
+		}
+	}
+
 	/** Method to send a Frame */
 	public void sendFrame(Frame frame) {
-		writeThread = new Thread(new SerialWriter(outputStream, frame));
-		writeThread.start();
+		this.sendFrame = frame;
+		References.SERIAL_MANAGEMENT.notifyObservers();
 	}
 
 	private void addReceivedBuffer(Frame frame) {
