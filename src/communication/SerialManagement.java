@@ -70,6 +70,7 @@ public class SerialManagement implements Observable {
 	}
 
 	/** Method to connect to an available port */
+	@SuppressWarnings("static-access")
 	private void connect(String portName) throws Exception {
 		CommPortIdentifier commPortIdentifier = CommPortIdentifier.getPortIdentifier(portName);
 
@@ -193,13 +194,22 @@ public class SerialManagement implements Observable {
 	}
 
 	public void startTransmission() {
-		if(!writeThread.isAlive()) {
-			writeThread = new Thread(new SerialWriter());
-			writeThread.start();
-		}
+		writeThread = new Thread(new SerialWriter());
+		writeThread.start();
 	}
 
+	/** Method to send confirmation Frame */
+	public void sendConfirmationFrame(Frame frame) {
+		try {
+			outputStream.write(frame.getFrame());
+			outputStream.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	/** Method to send a Frame */
+	@SuppressWarnings("static-access")
 	public void sendFrame(Frame frame) {
 		this.sendFrame = frame;
 		References.SERIAL_MANAGEMENT.notifyObservers();

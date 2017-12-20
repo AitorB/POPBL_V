@@ -158,7 +158,7 @@ public class CommunicationHandler implements Observer {
 				switch (frame.getType()) {
 				case References.REQUEST_COMMUNICATION:
 					receivingON = true;
-					References.SERIAL_MANAGEMENT.sendFrame(References.FRAME_MANAGEMENT.confirmCommunicationFrame());
+					References.SERIAL_MANAGEMENT.sendConfirmationFrame(References.FRAME_MANAGEMENT.confirmCommunicationFrame());
 					References.STATUS_PANEL.setStatus(References.RECEIVING);
 					References.COUNTDOWN.stop();
 					
@@ -216,7 +216,6 @@ public class CommunicationHandler implements Observer {
 				if(newPacket == true ) {
 					openMixer();
 					newPacket = false;
-				
 					try {
 						int cnt;
 	

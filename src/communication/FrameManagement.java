@@ -27,7 +27,7 @@ public class FrameManagement {
 	public Frame requestCommunicationFrame() {
 		byte[] empty = new byte[References.DATA_LENGTH];
 
-		sendId = 0;
+		restartID();
 
 		return new Frame(References.REQUEST_COMMUNICATION, sendId, empty);
 	}
@@ -36,7 +36,7 @@ public class FrameManagement {
 	public Frame confirmCommunicationFrame() {
 		byte[] empty = new byte[References.DATA_LENGTH];
 
-		sendId = 0;
+		restartID();
 
 		return new Frame(References.CONFIRM, sendId, empty);
 	}
@@ -70,7 +70,7 @@ public class FrameManagement {
 
 		Frame frame = new Frame(References.FINAL_FRAME, sendId, empty);
 
-		sendId = 0;
+		restartID();
 
 		return frame;
 	}
@@ -83,7 +83,7 @@ public class FrameManagement {
 
 		Frame frame = new Frame(References.REJECT, sendId, empty);
 
-		sendId = 0;
+		restartID();
 
 		return frame;
 	}
@@ -95,6 +95,12 @@ public class FrameManagement {
 		} else {
 			sendId++;
 		}
+	}
+
+	/** Restart ID number */
+	private void restartID() {
+		lastId = 0;
+		sendId = 0;
 	}
 
 	public boolean validateFrame(Frame frame) {
